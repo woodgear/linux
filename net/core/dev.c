@@ -158,7 +158,7 @@
 
 static DEFINE_SPINLOCK(ptype_lock);
 static DEFINE_SPINLOCK(offload_lock);
-struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
+struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly; // wg: packet-dispatch 全局表，存的是协议回调
 struct list_head ptype_all __read_mostly;	/* Taps */
 static struct list_head offload_base __read_mostly;
 
@@ -512,6 +512,7 @@ static inline void netdev_set_addr_lockdep_class(struct net_device *dev)
 
 static inline struct list_head *ptype_head(const struct packet_type *pt)
 {
+	// wg: packet-dispatch/init 2. 添加到全局协议回调上
 	if (pt->type == htons(ETH_P_ALL))
 		return pt->dev ? &pt->dev->ptype_all : &ptype_all;
 	else
@@ -534,6 +535,7 @@ static inline struct list_head *ptype_head(const struct packet_type *pt)
 
 void dev_add_pack(struct packet_type *pt)
 {
+	// wg: packet-dispatch/init 2. 添加协议回调
 	struct list_head *head = ptype_head(pt);
 
 	spin_lock(&ptype_lock);
@@ -2334,6 +2336,7 @@ static inline int deliver_skb(struct sk_buff *skb,
 	if (unlikely(skb_orphan_frags_rx(skb, GFP_ATOMIC)))
 		return -ENOMEM;
 	refcount_inc(&skb->users);
+	// wg: packet-dispatch/way 这里就是调用各个协议栈函数的地方。
 	return pt_prev->func(skb, skb->dev, pt_prev, orig_dev);
 }
 
@@ -2349,7 +2352,7 @@ static inline void deliver_ptype_list_skb(struct sk_buff *skb,
 		if (ptype->type != type)
 			continue;
 		if (pt_prev)
-			deliver_skb(skb, pt_prev, orig_dev);
+			deliver_skb(skb, pt_prev, orig_dev);  // wg: packet-dispatch/way  deliver_skb
 		pt_prev = ptype;
 	}
 	*pt = pt_prev;
@@ -5407,6 +5410,7 @@ check_vlan_id:
 
 	/* deliver only exact match when indicated */
 	if (likely(!deliver_exact)) {
+		// wg: packet-dispatch/way 2. skb_receive 根据不同的协议调用不同的回调
 		deliver_ptype_list_skb(skb, &pt_prev, orig_dev, type,
 				       &ptype_base[ntohs(type) &
 						   PTYPE_HASH_MASK]);

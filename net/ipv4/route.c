@@ -1853,7 +1853,7 @@ static int __mkroute_input(struct sk_buff *skb,
 
 	rth->rt_is_input = 1;
 	RT_CACHE_STAT_INC(in_slow_tot);
-
+	// wg: forward 设置forward模式的包 skb.input=ip_forward
 	rth->dst.input = ip_forward;
 
 	rt_set_nexthop(rth, daddr, res, fnhe, res->fi, res->type, itag,
@@ -2193,8 +2193,9 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	}
 	if (res->type != RTN_UNICAST)
 		goto martian_destination;
-
+// wg: forward/way c的tag是默认顺序执行的，到这里默认就是转发模式了
 make_route:
+	// wg: 包是转发模式的
 	err = ip_mkroute_input(skb, res, in_dev, daddr, saddr, tos, flkeys);
 out:	return err;
 

@@ -1931,7 +1931,7 @@ static int __init ipv4_offload_init(void)
 }
 
 fs_initcall(ipv4_offload_init);
-
+// wg: packet-dispatch/init ip 协议回调
 static struct packet_type ip_packet_type __read_mostly = {
 	.type = cpu_to_be16(ETH_P_IP),
 	.func = ip_rcv,
@@ -2046,7 +2046,7 @@ static int __init inet_init(void)
 	ipv4_proc_init();
 
 	ipfrag_init();
-
+	// wg: packet-dispatch/init 设置ip协议回调
 	dev_add_pack(&ip_packet_type);
 
 	ip_tunnel_core_init();

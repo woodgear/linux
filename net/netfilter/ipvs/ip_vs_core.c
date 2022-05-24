@@ -2233,7 +2233,7 @@ ip_vs_forward_icmp_v6(void *priv, struct sk_buff *skb,
 }
 #endif
 
-
+// wg: ipvs/init 1. nfhook
 static const struct nf_hook_ops ip_vs_ops4[] = {
 	/* After packet filtering, change source only for VS/NAT */
 	{

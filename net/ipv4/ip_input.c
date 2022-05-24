@@ -426,6 +426,7 @@ static int ip_rcv_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
 
 	ret = ip_rcv_finish_core(net, sk, skb, dev, NULL);
 	if (ret != NET_RX_DROP)
+		// wg: 包已经收完了，也做完路由判断了。会调用skb->input 实际上是ip_local_deliver 或者 ip_forward
 		ret = dst_input(skb);
 	return ret;
 }
@@ -536,7 +537,7 @@ int ip_rcv(struct sk_buff *skb, struct net_device *dev, struct packet_type *pt,
 	skb = ip_rcv_core(skb, net);
 	if (skb == NULL)
 		return NET_RX_DROP;
-
+	// wg: nf/way 1. ip prerouting 阶段
 	return NF_HOOK(NFPROTO_IPV4, NF_INET_PRE_ROUTING,
 		       net, NULL, skb, dev, NULL,
 		       ip_rcv_finish);
