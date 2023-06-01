@@ -1066,7 +1066,7 @@ register_for_each_vma(struct uprobe *uprobe, struct uprobe_consumer *new)
 			/* consult only the "caller", new consumer. */
 			if (consumer_filter(new,
 					UPROBE_FILTER_REGISTER, mm))
-				err = install_breakpoint(uprobe, mm, vma, info->vaddr); # wg:设置断点 chain of __uprobe_register  
+				err = install_breakpoint(uprobe, mm, vma, info->vaddr); // wg:设置断点 chain of __uprobe_register  
 		} else if (test_bit(MMF_HAS_UPROBES, &mm->flags)) {
 			if (!filter_chain(uprobe,
 					UPROBE_FILTER_UNREGISTER, mm))
