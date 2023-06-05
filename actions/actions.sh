@@ -15,12 +15,24 @@ function lx-ssh() {
   ssh -vvv root@127.0.0.1 -p 2222
 }
 
+function lx-note() {
+  # e1000 1.21 Gbits/sec
+  # virtio-net-pci
+  # [ ID] Interval           Transfer     Bitrate         Retr
+  # [  5]   0.00-10.00  sec  4.54 GBytes  3.90 Gbits/sec    0             sender
+  # [  5]   0.00-9.96   sec  4.53 GBytes  3.91 Gbits/sec                  receiver
+  # 要想使用 virtio-net-pci,必须要内核支持开启 CONFIG_VIRTIO_NET=y CONFIG_VIRTIO_PCI=y
+
+  return
+}
 function lx-boot() {
   # -serial mon:stdio https://unix.stackexchange.com/a/436321
   #     ctl-a c
   # -nic user,model=e1000,hostfwd=tcp::2222-:22
-  #     在 /etc/network/interfaces 
-  #         
+  #     在 /etc/network/interfaces
+  #             auto eth0
+  #             iface eth0 inet dhcp
+
   qemu-system-x86_64 \
     -kernel $PWD/arch/x86_64/boot/bzImage \
     -boot c \
@@ -29,7 +41,7 @@ function lx-boot() {
     -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
     -serial mon:stdio \
     -display none \
-    -nic user,hostfwd=tcp::2222-:22
-
+    -netdev bridge,id=hn0,br=virbr0 \
+    -device e1000,netdev=hn0,id=nic1 # 注意device后的类型,如果想用 virtio-net-pci的话,必须要内核支持
   return
 }
