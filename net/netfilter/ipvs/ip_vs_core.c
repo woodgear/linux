@@ -442,6 +442,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 	       struct ip_vs_proto_data *pd, int *ignored,
 	       struct ip_vs_iphdr *iph)
 {
+	printk(KERN_INFO "[wg] do real schedule \n");
 	struct ip_vs_protocol *pp = pd->pp;
 	struct ip_vs_conn *cp = NULL;
 	struct ip_vs_scheduler *sched;
@@ -1326,12 +1327,23 @@ drop:
 	return NF_STOLEN;
 }
 
+static char * 
+ip_vs_hooknum_str(unsigned int hooknum) {
+   if (hooknum == NF_INET_LOCAL_OUT) {
+        return "NF_INET_LOCAL_OUT";
+   }
+   if (hooknum == NF_INET_LOCAL_IN) {
+    return "NF_INET_LOCAL_IN";
+   }
+    return "unknown";
+}
 /*
  *	Check if outgoing packet belongs to the established ip_vs_conn.
  */
 static unsigned int
 ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int af)
 {
+	printk(KERN_INFO "[wg] in ip_vs_out %d %s\n", hooknum,ip_vs_hooknum_str(hooknum));
 	struct ip_vs_iphdr iph;
 	struct ip_vs_protocol *pp;
 	struct ip_vs_proto_data *pd;
@@ -1403,8 +1415,11 @@ ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, in
 	cp = INDIRECT_CALL_1(pp->conn_out_get, ip_vs_conn_out_get_proto,
 			     ipvs, af, skb, &iph);
 
-	if (likely(cp))
+	if (likely(cp)) {
+        printk(KERN_INFO "[wg]  belong to a exist entry\n");
 		return handle_response(af, skb, pd, cp, &iph, hooknum);
+    }
+    printk(KERN_INFO "[wg] not belong to a exist entry\n");
 
 	/* Check for real-server-started requests */
 	if (atomic_read(&ipvs->conn_out_counter)) {
@@ -1952,6 +1967,37 @@ out:
 #endif
 
 
+char* tcp_flags_to_string(struct tcphdr *tcph) {
+    static char flags[9];
+    flags[0] = (tcph->syn) ? 'S' : '.';
+    flags[1] = (tcph->ack) ? 'A' : '.';
+    flags[2] = (tcph->fin) ? 'F' : '.';
+    flags[3] = (tcph->rst) ? 'R' : '.';
+    flags[4] = (tcph->psh) ? 'P' : '.';
+    flags[5] = (tcph->urg) ? 'U' : '.';
+    flags[6] = (tcph->ece) ? 'E' : '.';
+    flags[7] = (tcph->cwr) ? 'C' : '.';
+    flags[8] = '\0';
+    return flags;
+}
+
+#define PRINT_SKBUF(skbuf) \
+    do { \
+        struct sk_buff *__skb = skbuf; \
+        struct iphdr *__ip_header; \
+        struct tcphdr *__tcp_header; \
+        struct udphdr *__udp_header; \
+        if (__skb->protocol == htons(ETH_P_IP)) { \
+            __ip_header = ip_hdr(__skb); \
+            if (__ip_header->protocol == IPPROTO_TCP) { \
+				__tcp_header = tcp_hdr(__skb); \
+                pr_info("[wg]: tcp skb saddr: %pI4 daddr: %pI4 sport: %u dport: %u seq %u %s\n", &__ip_header->saddr,&__ip_header->daddr,ntohs(__tcp_header->source),ntohs(__tcp_header->dest),__tcp_header->seq,tcp_flags_to_string(__tcp_header)); \
+            } else if (__ip_header->protocol == IPPROTO_UDP) { \
+                __udp_header = udp_hdr(__skb); \
+                pr_info("[wg]: udp skb saddr: %pI4 daddr: %pI4 sport: %u dport: %u", &__ip_header->saddr,&__ip_header->daddr,ntohs(__udp_header->source),ntohs(__udp_header->dest)); \
+            } \
+        } \
+    } while (0)
 /*
  *	Check if it's for virtual services, look it up,
  *	and send it on its way...
@@ -1959,6 +2005,9 @@ out:
 static unsigned int
 ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int af)
 {
+
+	printk(KERN_INFO "[wg] in ip_vs_in %d %s\n", hooknum,ip_vs_hooknum_str(hooknum));
+    PRINT_SKBUF(skb);
 	struct ip_vs_iphdr iph;
 	struct ip_vs_protocol *pp;
 	struct ip_vs_proto_data *pd;
@@ -1968,8 +2017,10 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 	struct sock *sk;
 
 	/* Already marked as IPVS request or reply? */
-	if (skb->ipvs_property)
+	if (skb->ipvs_property) {
+	    printk(KERN_INFO "[wg] already masked \n");
 		return NF_ACCEPT;
+    }
 
 	/*
 	 *	Big tappo:
@@ -2043,6 +2094,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 	conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
 	if (conn_reuse_mode && !iph.fragoffs && is_new_conn(skb, &iph) && cp) {
+        printk(KERN_INFO "[wg] in reuse \n");
 		bool old_ct = false, resched = false;
 
 		if (unlikely(sysctl_expire_nodest_conn(ipvs)) && cp->dest &&
@@ -2076,6 +2128,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 	/* Check the server status */
 	if (cp && cp->dest && !(cp->dest->flags & IP_VS_DEST_F_AVAILABLE)) {
+        printk(KERN_INFO "[wg] dest not avaiable \n");
 		/* the destination server is not available */
 		if (sysctl_expire_nodest_conn(ipvs)) {
 			bool old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
@@ -2096,7 +2149,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 	if (unlikely(!cp)) {
 		int v;
-
+        printk(KERN_INFO "[wg] ip_vs_conn not found try to schedlue \n");
 		if (!ip_vs_try_to_schedule(ipvs, af, skb, pd, &v, &cp, &iph))
 			return v;
 	}

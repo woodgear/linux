@@ -9,6 +9,9 @@ set -x
 #     iface eth0 inet dhcp
 sudo qemu-system-x86_64 \
   -kernel $PWD/arch/x86_64/boot/bzImage \
+  -enable-kvm \
+  -cpu host \
+  -smp 2 \
   -boot c \
   -m 2049M \
   -hda $PWD/rootfs.ext2 \

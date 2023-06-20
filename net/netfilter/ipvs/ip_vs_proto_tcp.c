@@ -64,12 +64,16 @@ tcp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 
 	/* No !th->ack check to allow scheduling on SYN+ACK for Active FTP */
 
-	if (likely(!ip_vs_iph_inverse(iph)))
+	if (likely(!ip_vs_iph_inverse(iph))) {
+	    printk(KERN_INFO "[wg] tcp schedule not inverse daddr dport %pI4 %u\n", &iph->daddr, ntohs(ports[1]));
 		svc = ip_vs_service_find(ipvs, af, skb->mark, iph->protocol,
 					 &iph->daddr, ports[1]);
-	else
+    }
+	else {
+	    printk(KERN_INFO "[wg] tcp schedule inverse saddr sport %pI4 %d\n", &iph->daddr, ports[1]);
 		svc = ip_vs_service_find(ipvs, af, skb->mark, iph->protocol,
 					 &iph->saddr, ports[0]);
+    }
 
 	if (svc) {
 		int ignored;
