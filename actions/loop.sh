@@ -7,3 +7,4 @@ sudo make modules_install
 sudo rm -rf /lib/modules/5.13.0wg+/build
 sudo rm -rf /lib/modules/5.13.0wg+/source
 scp -r /lib/modules/5.13.0wg+ root@192.168.122.76:/lib/modules/
+tmux send-keys -t 0 C-c ' ./loop.sh' C-m

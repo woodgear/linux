@@ -181,6 +181,14 @@ static inline int ip_vs_addr_equal(int af, const union nf_inet_addr *a,
 	return a->ip == b->ip;
 }
 
+#define WG_IP_VS_DBG_BUF(level, msg, ...)					\
+	do {								\
+		char ip_vs_dbg_buf[160];				\
+		int ip_vs_dbg_idx = 0;					\
+		if (level <= ip_vs_get_debug_level())			\
+			printk(KERN_DEBUG pr_fmt(msg), ##__VA_ARGS__);	\
+	} while (0)
+
 #ifdef CONFIG_IP_VS_DEBUG
 #include <linux/net.h>
 

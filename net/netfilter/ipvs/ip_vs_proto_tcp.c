@@ -65,7 +65,7 @@ tcp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 	/* No !th->ack check to allow scheduling on SYN+ACK for Active FTP */
 
 	if (likely(!ip_vs_iph_inverse(iph))) {
-	    printk(KERN_INFO "[wg] tcp schedule not inverse daddr dport %pI4 %u\n", &iph->daddr, ntohs(ports[1]));
+	    printk(KERN_INFO "[wg] tcp schedule not inverse daddr dport %pI4 %u try to find svc for this daddr and dport\n", &iph->daddr, ntohs(ports[1]));
 		svc = ip_vs_service_find(ipvs, af, skb->mark, iph->protocol,
 					 &iph->daddr, ports[1]);
     }
@@ -229,6 +229,7 @@ static int
 tcp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 		 struct ip_vs_conn *cp, struct ip_vs_iphdr *iph)
 {
+    printk(KERN_DEBUG "[wg] tcp dnat");
 	struct tcphdr *tcph;
 	unsigned int tcphoff = iph->len;
 	bool payload_csum = false;
@@ -265,6 +266,7 @@ tcp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 	}
 
 	tcph = (void *)skb_network_header(skb) + tcphoff;
+    // [wg] update port
 	tcph->dest = cp->dport;
 
 	/*

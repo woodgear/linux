@@ -70,13 +70,16 @@
 void
 ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 {
+    printk(KERN_DEBUG "[wg] in update conntrack");
 	enum ip_conntrack_info ctinfo;
 	struct nf_conn *ct = nf_ct_get(skb, &ctinfo);
 	struct nf_conntrack_tuple new_tuple;
 
-	if (ct == NULL || nf_ct_is_confirmed(ct) ||
-	    nf_ct_is_dying(ct))
+	if (ct == NULL || nf_ct_is_confirmed(ct) || nf_ct_is_dying(ct)) {
+        printk(KERN_DEBUG "[wg] ct is null");
 		return;
+    }
+    printk(KERN_DEBUG "[wg] ct not null");
 
 	/* Never alter conntrack for non-NAT conns */
 	if (IP_VS_FWD_METHOD(cp) != IP_VS_CONN_F_MASQ)
@@ -116,15 +119,29 @@ ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 		    new_tuple.dst.protonum != IPPROTO_ICMPV6)
 			new_tuple.dst.u.tcp.port = cp->vport;
 	}
-	IP_VS_DBG_BUF(7, "%s: Updating conntrack ct=%p, status=0x%lX, "
+	// pr_info("[wg] %s: Updating conntrack ct=%p, status=0x%lX, "
+	// 	      "ctinfo=%d, old reply=" FMT_TUPLE "\n",
+	// 	      __func__, ct, ct->status, ctinfo,
+	// 	      ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
+
+	WG_IP_VS_DBG_BUF(7, "%s: Updating conntrack ct=%p, status=0x%lX, "
 		      "ctinfo=%d, old reply=" FMT_TUPLE "\n",
 		      __func__, ct, ct->status, ctinfo,
 		      ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
+
+	// pr_info("[wg]%s: Updating conntrack ct=%p, status=0x%lX, "
+	// 	      "ctinfo=%d, new reply=" FMT_TUPLE "\n",
+	// 	      __func__, ct, ct->status, ctinfo,
+	// 	      ARG_TUPLE(&new_tuple));
 	IP_VS_DBG_BUF(7, "%s: Updating conntrack ct=%p, status=0x%lX, "
 		      "ctinfo=%d, new reply=" FMT_TUPLE "\n",
 		      __func__, ct, ct->status, ctinfo,
 		      ARG_TUPLE(&new_tuple));
+
 	nf_conntrack_alter_reply(ct, &new_tuple);
+
+	// pr_info("[wg] %s: Updated conntrack ct=%p for cp=" FMT_CONN "\n",
+	// 	      __func__, ct, ARG_CONN(cp));
 	IP_VS_DBG_BUF(7, "%s: Updated conntrack ct=%p for cp=" FMT_CONN "\n",
 		      __func__, ct, ARG_CONN(cp));
 }

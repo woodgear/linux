@@ -8,11 +8,23 @@ rmmod ip_vs
 
 modprobe ip_vs
 
+
+sysctl -w net.ipv4.ip_forward=1
+sysctl -w net.ipv4.conf.all.arp_accept=1
+sysctl -w net.ipv4.vs.conntrack=1
+sysctl -w net.ipv4.vs.conntrack=1
+sysctl -w net.ipv4.vs.debug_level=12
+
+
 ip address add 192.168.122.10 dev eth0
 # ipvsadm -a -t 192.168.122.10:3333 -r 192.168.122.76:12345 -m
 ipvsadm -A -t 192.168.122.10:3333 -s rr
 ipvsadm -a -t 192.168.122.10:3333 -r 10.0.0.222:8000 -m
 
-sysctl -w net.ipv4.ip_forward=1
-sysctl -w net.ipv4.conf.all.arp_accept=1
-sysctl -w net.ipv4.vs.conntrack=1
+
+dmesg -c > /dev/null
+clear
+./curl-amd64 192.168.122.10:3333
+echo "xxxxxxxxxxxxxxxx\n"
+dmesg
+

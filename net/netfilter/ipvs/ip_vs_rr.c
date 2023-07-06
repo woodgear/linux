@@ -86,6 +86,7 @@ stop:
 	return NULL;
 
   out:
+    // [wg] 通过这种方式来切到下一个链表
 	svc->sched_data = &dest->n_list;
 	spin_unlock_bh(&svc->sched_lock);
 	IP_VS_DBG_BUF(6, "RR: server %s:%u "

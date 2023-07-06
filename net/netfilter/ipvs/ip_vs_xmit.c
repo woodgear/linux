@@ -337,7 +337,7 @@ __ip_vs_get_out_rt(struct netns_ipvs *ipvs, int skb_af, struct sk_buff *skb,
 			}
 			__ip_vs_dst_set(dest, dest_dst, &rt->dst, 0);
 			spin_unlock_bh(&dest->dst_lock);
-			IP_VS_DBG(10, "new dst %pI4, src %pI4, refcnt=%d\n",
+			IP_VS_DBG(10, "[wg] new dst %pI4, src %pI4, refcnt=%d\n",
 				  &dest->addr.ip, &dest_dst->dst_saddr.ip,
 				  atomic_read(&rt->dst.__refcnt));
 		}
@@ -636,6 +636,7 @@ static inline int ip_vs_nat_send_or_cont(int pf, struct sk_buff *skb,
 {
 	int ret = NF_STOLEN;
 
+    printk(KERN_INFO "[wg] mask ipvs_property \n");
 	skb->ipvs_property = 1;
 	if (likely(!(cp->flags & IP_VS_CONN_F_NFCT)))
 		ip_vs_notrack(skb);
@@ -653,6 +654,7 @@ static inline int ip_vs_nat_send_or_cont(int pf, struct sk_buff *skb,
 		skb_forward_csum(skb);
 		if (skb->dev)
 			skb->tstamp = 0;
+        printk(KERN_INFO "[wg] local out again \n");
 		NF_HOOK(pf, NF_INET_LOCAL_OUT, cp->ipvs->net, NULL, skb,
 			NULL, skb_dst(skb)->dev, dst_output);
 	} else
@@ -757,6 +759,16 @@ ip_vs_bypass_xmit_v6(struct sk_buff *skb, struct ip_vs_conn *cp,
 }
 #endif
 
+char* ipv4_to_string(uint32_t ip) {
+    static char ipAddressString[16];
+    unsigned char byte4 = (ip >> 24) & 0xFF;
+    unsigned char byte3 = (ip >> 16) & 0xFF;
+    unsigned char byte2 = (ip >> 8) & 0xFF;
+    unsigned char byte1 = ip & 0xFF;
+    snprintf(ipAddressString, 16, "%d.%d.%d.%d", byte1, byte2, byte3, byte4);
+    return ipAddressString;
+}
+
 /*
  *      NAT transmitter (only for outside-to-inside nat forwarding)
  *      Not used for related ICMP
@@ -821,14 +833,15 @@ ip_vs_nat_xmit(struct sk_buff *skb, struct ip_vs_conn *cp,
 
 	if (skb_cow(skb, rt->dst.dev->hard_header_len))
 		goto tx_error;
-
+    printk(KERN_INFO "[wg] before dnat \n");
 	/* mangle the packet */
 	if (pp->dnat_handler && !pp->dnat_handler(skb, pp, cp, ipvsh))
 		goto tx_error;
+    // [wg] change dest ip here
 	ip_hdr(skb)->daddr = cp->daddr.ip;
+    printk(KERN_INFO "[wg] change daddr here after dnat  %s \n",ipv4_to_string(cp->daddr.ip));
+    //pr_info(KERN_INFO "[wg] after dnat daddr %pI4\n",cp->daddr.ip);
 	ip_send_check(ip_hdr(skb));
-
-	IP_VS_DBG_PKT(10, AF_INET, pp, skb, ipvsh->off, "After DNAT");
 
 	/* FIXME: when application helper enlarges the packet and the length
 	   is larger than the MTU of outgoing device, there will be still
@@ -837,7 +850,9 @@ ip_vs_nat_xmit(struct sk_buff *skb, struct ip_vs_conn *cp,
 	/* Another hack: avoid icmp_send in ip_fragment */
 	skb->ignore_df = 1;
 
+    printk(KERN_INFO "[wg] before send or cont \n");
 	rc = ip_vs_nat_send_or_cont(NFPROTO_IPV4, skb, cp, local);
+    pr_info(KERN_INFO "[wg] after send or cont rc %d \n",rc);
 
 	LeaveFunction(10);
 	return rc;
