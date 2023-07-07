@@ -130,9 +130,11 @@ static unsigned int ip_vs_conn_hashkey_param(const struct ip_vs_conn_param *p,
 			ip_vs_conn_tab_mask;
 
 	if (likely(!inverse)) {
+        printk(KERN_INFO "[wg] hash with caddr %pI4 cport %d \n",&p->caddr->ip,ntohs(p->cport));
 		addr = p->caddr;
 		port = p->cport;
 	} else {
+        printk(KERN_INFO "[wg] hash with vaddr %pI4  vport %d \n",&p->vaddr->ip,ntohs(p->vport));
 		addr = p->vaddr;
 		port = p->vport;
 	}

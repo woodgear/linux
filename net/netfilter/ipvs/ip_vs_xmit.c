@@ -654,12 +654,14 @@ static inline int ip_vs_nat_send_or_cont(int pf, struct sk_buff *skb,
 		skb_forward_csum(skb);
 		if (skb->dev)
 			skb->tstamp = 0;
-        printk(KERN_INFO "[wg] local out again \n");
+        printk(KERN_INFO "[wg] local out again %s\n",skb_to_string(skb));
 		NF_HOOK(pf, NF_INET_LOCAL_OUT, cp->ipvs->net, NULL, skb,
 			NULL, skb_dst(skb)->dev, dst_output);
+        printk(KERN_INFO "[wg] local out again over %s\n",skb_to_string(skb));
 	} else
 		ret = NF_ACCEPT;
 
+    printk(KERN_INFO "[wg] ip_vs_nat_send_or_cont ret %d\n",ret);
 	return ret;
 }
 
