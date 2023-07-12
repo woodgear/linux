@@ -849,9 +849,11 @@ static void ip_vs_conn_del_put(struct ip_vs_conn *cp)
 
 static void ip_vs_conn_expire(struct timer_list *t)
 {
+
 	struct ip_vs_conn *cp = from_timer(cp, t, timer);
 	struct netns_ipvs *ipvs = cp->ipvs;
 
+    printk(KERN_DEBUG "[wg] in ipvs_conn_expires\n");
 	/*
 	 *	do I control anybody?
 	 */
