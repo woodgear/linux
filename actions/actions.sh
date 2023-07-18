@@ -23,6 +23,13 @@ function lx-note() {
   # [  5]   0.00-9.96   sec  4.53 GBytes  3.91 Gbits/sec                  receiver
   # 要想使用 virtio-net-pci,必须要内核支持开启 CONFIG_VIRTIO_NET=y CONFIG_VIRTIO_PCI=y
 
+  # 192.168.31.210 host (rip)
+  # 192.168.122.76 vm
+  # 192.168.122.10 vip
+
+  # 122.1 -> 122.10
+  # 122.1 -> 31.210 
+
   return
 }
 function lx-boot() {
