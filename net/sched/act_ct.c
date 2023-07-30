@@ -765,6 +765,7 @@ static int ct_nat_execute(struct sk_buff *skb, struct nf_conn *ct,
 			  const struct nf_nat_range2 *range,
 			  enum nf_nat_manip_type maniptype)
 {
+    pr_info("[wg] [nat] [%s]\n", __func__);
 	__be16 proto = skb_protocol(skb, true);
 	int hooknum, err = NF_ACCEPT;
 

@@ -27,6 +27,8 @@
 
 #include "nf_internals.h"
 
+#include <net/wg_debug.h>
+
 static spinlock_t nf_nat_locks[CONNTRACK_LOCKS];
 
 static DEFINE_MUTEX(nf_nat_proto_mutex);
@@ -609,6 +611,7 @@ nf_nat_setup_info(struct nf_conn *ct,
 		unsigned int srchash;
 		spinlock_t *lock;
 
+        pr_info("[wg] init the new_tuple %s hash %d \n",tuple_to_string(&new_tuple),srchash);
 		srchash = hash_by_src(net,
 				      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
 		lock = &nf_nat_locks[srchash % CONNTRACK_LOCKS];
@@ -660,6 +663,7 @@ unsigned int nf_nat_packet(struct nf_conn *ct,
 			   unsigned int hooknum,
 			   struct sk_buff *skb)
 {
+	pr_debug("[wg] [nat] nf_nat_packet \n");
 	enum nf_nat_manip_type mtype = HOOK2MANIP(hooknum);
 	enum ip_conntrack_dir dir = CTINFO2DIR(ctinfo);
 	unsigned int verdict = NF_ACCEPT;

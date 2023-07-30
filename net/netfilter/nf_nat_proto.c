@@ -29,6 +29,7 @@
 #include <net/netfilter/nf_conntrack_core.h>
 #include <net/netfilter/nf_conntrack.h>
 #include <linux/netfilter/nfnetlink_conntrack.h>
+#include <net/wg_debug.h>
 
 static void nf_csum_update(struct sk_buff *skb,
 			   unsigned int iphdroff, __sum16 *check,
@@ -355,6 +356,7 @@ static bool nf_nat_ipv4_manip_pkt(struct sk_buff *skb,
 				  const struct nf_conntrack_tuple *target,
 				  enum nf_nat_manip_type maniptype)
 {
+    pr_info("[wg] [masq] [nf_nat_ipv4_manip_pkt] %s \n",skb_to_string(skb));
 	struct iphdr *iph;
 	unsigned int hdroff;
 
@@ -375,6 +377,8 @@ static bool nf_nat_ipv4_manip_pkt(struct sk_buff *skb,
 		csum_replace4(&iph->check, iph->daddr, target->dst.u3.ip);
 		iph->daddr = target->dst.u3.ip;
 	}
+
+    pr_info("[wg] [masq] [nf_nat_ipv4_manip_pkt] leave %s \n",skb_to_string(skb));
 	return true;
 }
 

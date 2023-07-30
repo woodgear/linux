@@ -49,7 +49,7 @@
 #include <net/netfilter/nf_conntrack_seqadj.h>
 #include <net/netfilter/nf_conntrack_helper.h>
 #include <net/netfilter/nf_conntrack_zones.h>
-
+#include <net/wg_debug.h>
 
 #define FMT_TUPLE	"%s:%u->%s:%u/%u"
 #define ARG_TUPLE(T)	IP_VS_DBG_ADDR((T)->src.l3num, &(T)->src.u3),	\

@@ -1,8 +1,30 @@
 #!/bin/bash
 
-function lx-build() {
-  make defconfig # 生成 .config文件
-  make
+function lx-gen-cofnig() (
+  #   make defconfig # 生成 .config文件
+  # 1. ipvs 变成动态模块
+  return
+)
+function lx-build() (
+  #   lx-gen-cofnig # 生成 .config文件 config已经生成好了 不能该
+  set -e
+  time make -j 10
+
+  # 产出是bzimage
+  md5sum ./arch/x86_64/boot/bzImage
+  return
+)
+
+function lx-readme() {
+  #有两种debug的方式
+  # 1. 重新编译一个bzimage,然后重启qemu 虚拟机
+  # 2. 重新编译内核模块然后在linux中加载
+
+  return
+}
+
+function lx-build-bzimage() {
+
   return
 }
 
@@ -28,7 +50,7 @@ function lx-note() {
   # 192.168.122.10 vip
 
   # 122.1 -> 122.10
-  # 122.1 -> 31.210 
+  # 122.1 -> 31.210
 
   return
 }

@@ -33,7 +33,7 @@ ipvsadm -a -t 192.168.122.10:3333 -r $rip -m
 
 dmesg -c > /dev/null
 clear
-./curl-amd64 192.168.122.10:3333
+./curl-amd64 --local-port 12345 192.168.122.10:3333
 echo "xxxxxxxxxxxxxxxx\n"
-dmesg
-
+dmesg > ./d.log
+cat ./d.log

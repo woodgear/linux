@@ -133,7 +133,8 @@ static inline int
 nf_hook_entry_hookfn(const struct nf_hook_entry *entry, struct sk_buff *skb,
 		     struct nf_hook_state *state)
 {
-	return entry->hook(entry->priv, skb, state);
+	int ret = entry->hook(entry->priv, skb, state);
+    return ret;
 }
 
 static inline void nf_hook_state_init(struct nf_hook_state *p,

@@ -44,6 +44,7 @@
 #include <linux/netfilter_ipv4.h>
 
 #include <net/ip_vs.h>
+#include <net/wg_debug.h>
 
 enum {
 	IP_VS_RT_MODE_LOCAL	= 1, /* Allow local dest */

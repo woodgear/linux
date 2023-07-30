@@ -42,6 +42,7 @@
 
 #include <linux/netfilter.h>
 #include <linux/netfilter_ipv4.h>
+#include <net/wg_debug.h>
 
 #ifdef CONFIG_IP_VS_IPV6
 #include <net/ipv6.h>
