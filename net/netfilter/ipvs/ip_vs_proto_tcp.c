@@ -76,6 +76,7 @@ tcp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
     }
 
 	if (svc) {
+	    printk(KERN_INFO "[wg] get svc\n");
 		int ignored;
 
 		if (ip_vs_todrop(ipvs)) {
@@ -83,6 +84,7 @@ tcp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 			 * It seems that we are very loaded.
 			 * We have to drop this packet :(
 			 */
+	        printk(KERN_INFO "[wg] very loaded\n");
 			*verdict = NF_DROP;
 			return 0;
 		}

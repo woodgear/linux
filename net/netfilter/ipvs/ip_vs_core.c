@@ -561,6 +561,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 		}
 	}
 
+	pr_info("[wg] Schedule cp %s\n",cp_to_string(cp));
 	IP_VS_DBG_BUF(6, "Schedule fwd:%c c:%s:%u v:%s:%u "
 		      "d:%s:%u conn->flags:%X conn->refcnt:%d\n",
 		      ip_vs_fwd_tag(cp),
@@ -2121,8 +2122,10 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 			if (!atomic_read(&cp->n_control))
 				ip_vs_conn_expire_now(cp);
 			__ip_vs_conn_put(cp);
-			if (old_ct)
+			if (old_ct) {
+                printk(KERN_INFO "[wg] old ct drop \n");
 				return NF_DROP;
+            }
 			cp = NULL;
 		}
 	}
@@ -2152,8 +2155,8 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 		int v;
         printk(KERN_INFO "[wg] ip_vs_conn not found try to schedlue |%s\n",skb_to_string(skb));
 		if (!ip_vs_try_to_schedule(ipvs, af, skb, pd, &v, &cp, &iph)) {
-            printk(KERN_INFO "[wg] schedule ok ipvs_in return \n");
-	        IP_VS_DBG_PKT(6, af, pp, skb, iph.off, "schedule ok ipvs_in return");
+            printk(KERN_INFO "[wg] schedule not ok ipvs_in return \n");
+	        IP_VS_DBG_PKT(6, af, pp, skb, iph.off, "schedule not ok ipvs_in return");
 			return v;
         }
         printk(KERN_INFO "[wg] here \n");

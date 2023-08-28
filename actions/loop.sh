@@ -1,10 +1,10 @@
 #!/bin/bash
-scp -r $PWD/actions/loop_in_vm.sh root@192.168.122.76:/root/loop.sh
-make -j 10
-sudo rm -rf /lib/modules/5.13.0wg+/
-sudo mkdir /lib/modules/5.13.0wg+/
-sudo make modules_install
-sudo rm -rf /lib/modules/5.13.0wg+/build
-sudo rm -rf /lib/modules/5.13.0wg+/source
-scp -r /lib/modules/5.13.0wg+ root@192.168.122.76:/lib/modules/
-tmux send-keys -t 0 C-c ' ./loop.sh' C-m
+source ./actions/actions.sh
+lx-build
+vm1=192.168.122.231
+vm2=192.168.122.232
+# scp -r $PWD/actions/loop_in_vm1-case2.sh root@$vm1:/root/loop.sh
+# lx-sync $vm1
+scp -r $PWD/actions/loop_in_vm1-case2.sh root@$vm2:/root/loop.sh
+lx-sync $vm2
+# tmux send-keys -t 0 C-c ' ./loop.sh' C-m

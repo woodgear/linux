@@ -110,6 +110,7 @@
 #include <net/secure_seq.h>
 #include <net/ip_tunnels.h>
 #include <net/l3mdev.h>
+#include <net/wg_debug.h>
 
 #include "fib_lookup.h"
 
@@ -2086,6 +2087,8 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 			       u8 tos, struct net_device *dev,
 			       struct fib_result *res)
 {
+
+    pr_info("[wg] ip_route_input_slow %s\n",skb_to_string(skb));
 	struct in_device *in_dev = __in_dev_get_rcu(dev);
 	struct flow_keys *flkeys = NULL, _flkeys;
 	struct net    *net = dev_net(dev);
@@ -2515,6 +2518,8 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 					    struct fib_result *res,
 					    const struct sk_buff *skb)
 {
+
+    pr_info("[wg] ip_route_output_key_hash_rcu\n");
 	struct net_device *dev_out = NULL;
 	int orig_oif = fl4->flowi4_oif;
 	unsigned int flags = 0;
@@ -2543,6 +2548,7 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 		    (ipv4_is_multicast(fl4->daddr) ||
 		     ipv4_is_lbcast(fl4->daddr))) {
 			/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */
+            pr_info("[wg] ip_route_output_key_hash_rcu is local? \n");
 			dev_out = __ip_dev_find(net, fl4->saddr, false);
 			if (!dev_out)
 				goto out;
@@ -2736,6 +2742,8 @@ struct dst_entry *ipv4_blackhole_route(struct net *net, struct dst_entry *dst_or
 struct rtable *ip_route_output_flow(struct net *net, struct flowi4 *flp4,
 				    const struct sock *sk)
 {
+
+    pr_info("[wg] ip_route_output_flow \n");
 	struct rtable *rt = __ip_route_output_key(net, flp4);
 
 	if (IS_ERR(rt))

@@ -1475,6 +1475,7 @@ static void neigh_hh_init(struct neighbour *n)
 
 int neigh_resolve_output(struct neighbour *neigh, struct sk_buff *skb)
 {
+    pr_info("[wg] neigh_resolve_output  \n");
 	int rc = 0;
 
 	if (!neigh_event_send(neigh, skb)) {

@@ -25,6 +25,7 @@
 #include <net/net_namespace.h>
 #include <net/netfilter/nf_queue.h>
 #include <net/sock.h>
+#include <net/wg_debug.h>
 
 #include "nf_internals.h"
 
@@ -584,11 +585,14 @@ int nf_hook_slow(struct sk_buff *skb, struct nf_hook_state *state,
 {
 	unsigned int verdict;
 	int ret;
+	int count = 0;
 
 	for (; s < e->num_hook_entries; s++) {
         struct nf_hook_entry *he=&e->hooks[s];
 		verdict = nf_hook_entry_hookfn(he, skb, state);
-        pr_info("[wg] nf hook %pS %d %d\n",he->hook,state->hook,verdict);
+        // dump_stack();
+        count++;
+        pr_info("[wg] nf hook %d %d/%d %pS %s %d\n",count,s,e->num_hook_entries,he->hook,hooknum_to_string(state->hook),verdict);
 		switch (verdict & NF_VERDICT_MASK) {
 		case NF_ACCEPT:
 			break;

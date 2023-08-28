@@ -357,6 +357,7 @@ static bool nf_nat_ipv4_manip_pkt(struct sk_buff *skb,
 				  enum nf_nat_manip_type maniptype)
 {
     pr_info("[wg] [masq] [nf_nat_ipv4_manip_pkt] %s \n",skb_to_string(skb));
+    // dump_stack();
 	struct iphdr *iph;
 	unsigned int hdroff;
 

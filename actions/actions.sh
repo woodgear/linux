@@ -5,6 +5,21 @@ function lx-gen-cofnig() (
   # 1. ipvs 变成动态模块
   return
 )
+
+function lx-sync() (
+  # init kernel module
+  local ip=$1
+  scp -r /lib/modules/5.13.0wg+ root@$ip:/lib/modules/
+#   scp /usr/bin/curl-amd64-static root@$ip:/bin/curl
+#   scp $PWD/http-echo root@$ip:/root/http-echo
+  # ipvsadm
+#   scp /usr/sbin/ipvsadm root@$ip:/bin/ipvsadm
+#   scp /usr/lib/x86_64-linux-gnu/libpopt.so.0.0.1 root@$ip:/lib/libpopt.so.0
+#   scp /usr/lib/x86_64-linux-gnu/libnl-3.so.200.26.0 root@$ip:/lib/libnl-3.so.200
+#   scp /usr/lib/x86_64-linux-gnu/libnl-genl-3.so.200.26.0 root@$ip:/lib/libnl-genl-3.so.200
+  return
+)
+
 function lx-build() (
   #   lx-gen-cofnig # 生成 .config文件 config已经生成好了 不能该
   set -e
@@ -12,6 +27,11 @@ function lx-build() (
 
   # 产出是bzimage
   md5sum ./arch/x86_64/boot/bzImage
+  sudo rm -rf /lib/modules/5.13.0wg+/
+  sudo mkdir /lib/modules/5.13.0wg+/
+  sudo make modules_install
+  sudo rm -rf /lib/modules/5.13.0wg+/build
+  sudo rm -rf /lib/modules/5.13.0wg+/source
   return
 )
 
@@ -30,6 +50,7 @@ function lx-build-bzimage() {
 
 function lx-rootfs() {
   #用buildroot生成rootfs
+  #
   return
 }
 

@@ -6,6 +6,7 @@
 #include <linux/ip.h>
 #include <net/tcp.h>
 #include <net/udp.h>
+#include <net/ip_vs.h>
 #include <linux/netfilter/nf_conntrack_tuple_common.h>
 #include <net/netfilter/nf_conntrack_tuple.h>
 
@@ -73,6 +74,16 @@ static inline char*  tuple_to_string(struct nf_conntrack_tuple  *tuple) {
              &(tuple->src.u3.ip), ntohs(tuple->src.u.all),
              &tuple->dst.u3.ip, ntohs(tuple->dst.u.all),
              tuple->dst.protonum);
+    return buf;
+}
+
+static inline char*  cp_to_string(struct ip_vs_conn *cp) {
+    static char buf[128];
+    snprintf(buf, sizeof(buf), "src=%pI4:%hu,vst=%pI4:%hu dst=%pI4:%hu",
+		&cp->caddr, ntohs(cp->cport),
+		&cp->vaddr, ntohs(cp->vport),
+		&cp->daddr, ntohs(cp->dport));
+
     return buf;
 }
 

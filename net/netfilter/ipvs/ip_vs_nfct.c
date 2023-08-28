@@ -105,6 +105,7 @@ ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 	 * real-server we will see RIP->DIP.
 	 */
 	new_tuple = ct->tuplehash[IP_CT_DIR_REPLY].tuple;
+    pr_info("[wg] update conntrack orgin  %s\n",tuple_to_string(&new_tuple));
 	/*
 	 * This will also take care of UDP and other protocols.
 	 */
@@ -124,6 +125,7 @@ ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 	// 	      __func__, ct, ct->status, ctinfo,
 	// 	      ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
 
+    pr_info("[wg] update conntrack new  %s\n",tuple_to_string(&new_tuple));
 	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, "
 		      "ctinfo=%d, old reply=" FMT_TUPLE "\n",
 		      __func__, ct, ct->status, ctinfo,

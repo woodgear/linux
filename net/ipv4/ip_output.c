@@ -186,6 +186,8 @@ EXPORT_SYMBOL_GPL(ip_build_and_send_pkt);
 
 static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
+
+    pr_info("[wg] ip_finish_output2  \n");
 	struct dst_entry *dst = skb_dst(skb);
 	struct rtable *rt = (struct rtable *)dst;
 	struct net_device *dev = dst->dev;
@@ -225,6 +227,7 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 	if (!IS_ERR(neigh)) {
 		int res;
 
+        pr_info("[wg] sock_confirm_neigh %pS %s \n",neigh->output,neigh->dev->name);
 		sock_confirm_neigh(skb, neigh);
 		/* if crossing protocols, can not use the cached header */
 		res = neigh_output(neigh, skb, is_v6gw);
@@ -289,12 +292,14 @@ static int ip_finish_output_gso(struct net *net, struct sock *sk,
 
 static int __ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *skb)
 {
+    pr_info("[wg] __ip_finish_output  \n");
 	unsigned int mtu;
 
 #if defined(CONFIG_NETFILTER) && defined(CONFIG_XFRM)
 	/* Policy lookup after SNAT yielded a new policy */
 	if (skb_dst(skb)->xfrm) {
 		IPCB(skb)->flags |= IPSKB_REROUTED;
+        pr_info("[wg] dst_output  \n");
 		return dst_output(net, sk, skb);
 	}
 #endif
@@ -327,6 +332,7 @@ static int ip_finish_output(struct net *net, struct sock *sk, struct sk_buff *sk
 static int ip_mc_finish_output(struct net *net, struct sock *sk,
 			       struct sk_buff *skb)
 {
+    pr_info("[wg] ip_mc_finish_output  \n");
 	struct rtable *new_rt;
 	bool do_cn = false;
 	int ret, err;
