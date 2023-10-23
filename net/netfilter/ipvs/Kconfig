@@ -348,4 +348,8 @@ config	IP_VS_PE_SIP
 	help
 	  Allow persistence based on the SIP Call-ID
 
+config IP_VS_TEST
+        tristate "Test for my example" if !KUNIT_ALL_TESTS
+        depends on IP_VS && KUNIT
+        default KUNIT_ALL_TESTS
 endif # IP_VS

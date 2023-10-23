@@ -43,3 +43,4 @@ obj-$(CONFIG_IP_VS_FTP) += ip_vs_ftp.o
 
 # IPVS connection template retrievers
 obj-$(CONFIG_IP_VS_PE_SIP) += ip_vs_pe_sip.o
+obj-$(CONFIG_IP_VS_TEST) += ip_vs_test.o
