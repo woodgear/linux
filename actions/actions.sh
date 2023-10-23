@@ -10,19 +10,24 @@ function lx-sync() (
   # init kernel module
   local ip=$1
   scp -r /lib/modules/5.13.0wg+ root@$ip:/lib/modules/
-#   scp /usr/bin/curl-amd64-static root@$ip:/bin/curl
-#   scp $PWD/http-echo root@$ip:/root/http-echo
+  #   scp /usr/bin/curl-amd64-static root@$ip:/bin/curl
+  #   scp $PWD/http-echo root@$ip:/root/http-echo
   # ipvsadm
-#   scp /usr/sbin/ipvsadm root@$ip:/bin/ipvsadm
-#   scp /usr/lib/x86_64-linux-gnu/libpopt.so.0.0.1 root@$ip:/lib/libpopt.so.0
-#   scp /usr/lib/x86_64-linux-gnu/libnl-3.so.200.26.0 root@$ip:/lib/libnl-3.so.200
-#   scp /usr/lib/x86_64-linux-gnu/libnl-genl-3.so.200.26.0 root@$ip:/lib/libnl-genl-3.so.200
+  #   scp /usr/sbin/ipvsadm root@$ip:/bin/ipvsadm
+  #   scp /usr/lib/x86_64-linux-gnu/libpopt.so.0.0.1 root@$ip:/lib/libpopt.so.0
+  #   scp /usr/lib/x86_64-linux-gnu/libnl-3.so.200.26.0 root@$ip:/lib/libnl-3.so.200
+  #   scp /usr/lib/x86_64-linux-gnu/libnl-genl-3.so.200.26.0 root@$ip:/lib/libnl-genl-3.so.200
   return
+)
+
+function lx-unit() (
+  ./tools/testing/kunit/kunit.py run
 )
 
 function lx-build() (
   #   lx-gen-cofnig # 生成 .config文件 config已经生成好了 不能该
   set -e
+  cp ./.config.cong ./.config
   time make -j 10
 
   # 产出是bzimage
