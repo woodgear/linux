@@ -447,6 +447,12 @@ config HISI_HIKEY_USB
 	  switching between the dual-role USB-C port and the USB-A host ports
 	  using only one USB controller.
 
+config MISC_EXAMPLE
+	 bool "My example"
+config MISC_EXAMPLE_TEST
+        tristate "Test for my example" if !KUNIT_ALL_TESTS
+        depends on MISC_EXAMPLE && KUNIT
+        default KUNIT_ALL_TESTS
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
