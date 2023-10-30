@@ -80,6 +80,11 @@ function lx-note() {
 
   return
 }
+
+function lx-init-fs() {
+  return
+}
+
 function lx-boot() {
   # -serial mon:stdio https://unix.stackexchange.com/a/436321
   #     ctl-a c
@@ -88,15 +93,26 @@ function lx-boot() {
   #             auto eth0
   #             iface eth0 inet dhcp
 
+  #   qemu-system-x86_64 \
+  #     -kernel $PWD/arch/x86_64/boot/bzImage \
+  #     -boot c \
+  #     -m 2049M \
+  #     -hda $PWD/rootfs.ext2 \
+  #     -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
+  #     -serial mon:stdio \
+  #     -display none \
+  #     -netdev bridge,id=hn0,br=virbr0 \
+  #     -device e1000,netdev=hn0,id=nic1 # 注意device后的类型,如果想用 virtio-net-pci的话,必须要内核支持
+
   qemu-system-x86_64 \
     -kernel $PWD/arch/x86_64/boot/bzImage \
     -boot c \
     -m 2049M \
-    -hda $PWD/rootfs.ext2 \
+    -hda $PWD/actions/rootfs/rootfs.ext4 \
     -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
     -serial mon:stdio \
     -display none \
     -netdev bridge,id=hn0,br=virbr0 \
-    -device e1000,netdev=hn0,id=nic1 # 注意device后的类型,如果想用 virtio-net-pci的话,必须要内核支持
+    -device e1000,netdev=hn0,id=nic1
   return
 }
