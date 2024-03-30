@@ -2087,8 +2087,9 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 			       u8 tos, struct net_device *dev,
 			       struct fib_result *res)
 {
-
-    pr_info("[wg] ip_route_input_slow %s\n",skb_to_string(skb));
+    if(is_our_skb(skb)){
+       pr_info("[wg] ip_route_input_slow %s\n",skb_to_string(skb));
+    }
 	struct in_device *in_dev = __in_dev_get_rcu(dev);
 	struct flow_keys *flkeys = NULL, _flkeys;
 	struct net    *net = dev_net(dev);
@@ -2185,8 +2186,12 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
 	if (res->type == RTN_LOCAL) {
 		err = fib_validate_source(skb, saddr, daddr, tos,
 					  0, dev, in_dev, &itag);
-		if (err < 0)
+		if (err < 0) {
+            if(is_our_skb(skb)){
+                pr_info("[wg] not fib_validate_source %s\n",skb_to_string(skb));
+            }
 			goto martian_source;
+        }
 		goto local_input;
 	}
 
@@ -2265,6 +2270,10 @@ local_input:
 	goto out;
 
 no_route:
+
+    if(is_our_skb(skb)){
+       pr_info("[wg] noroute %s\n",skb_to_string(skb));
+    }
 	RT_CACHE_STAT_INC(in_no_route);
 	res->type = RTN_UNREACHABLE;
 	res->fi = NULL;
@@ -2275,6 +2284,9 @@ no_route:
 	 *	Do not cache martian addresses: they should be logged (RFC1812)
 	 */
 martian_destination:
+    if(is_our_skb(skb)){
+       pr_info("[wg] martian_destination %s\n",skb_to_string(skb));
+    }
 	RT_CACHE_STAT_INC(in_martian_dst);
 #ifdef CONFIG_IP_ROUTE_VERBOSE
 	if (IN_DEV_LOG_MARTIANS(in_dev))
@@ -2291,6 +2303,9 @@ e_nobufs:
 	goto out;
 
 martian_source:
+    if(is_our_skb(skb)){
+       pr_info("[wg] martian_source %s %d\n",skb_to_string(skb),IN_DEV_NET_ROUTE_LOCALNET(in_dev, net));
+    }
 	ip_handle_martian_source(dev, in_dev, skb, daddr, saddr);
 	goto out;
 }
@@ -2519,7 +2534,7 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 					    const struct sk_buff *skb)
 {
 
-    pr_info("[wg] ip_route_output_key_hash_rcu\n");
+//    pr_info("[wg] ip_route_output_key_hash_rcu\n");
 	struct net_device *dev_out = NULL;
 	int orig_oif = fl4->flowi4_oif;
 	unsigned int flags = 0;
@@ -2548,7 +2563,7 @@ struct rtable *ip_route_output_key_hash_rcu(struct net *net, struct flowi4 *fl4,
 		    (ipv4_is_multicast(fl4->daddr) ||
 		     ipv4_is_lbcast(fl4->daddr))) {
 			/* It is equivalent to inet_addr_type(saddr) == RTN_LOCAL */
-            pr_info("[wg] ip_route_output_key_hash_rcu is local? \n");
+//            pr_info("[wg] ip_route_output_key_hash_rcu is local? \n");
 			dev_out = __ip_dev_find(net, fl4->saddr, false);
 			if (!dev_out)
 				goto out;
@@ -2743,7 +2758,7 @@ struct rtable *ip_route_output_flow(struct net *net, struct flowi4 *flp4,
 				    const struct sock *sk)
 {
 
-    pr_info("[wg] ip_route_output_flow \n");
+//    pr_info("[wg] ip_route_output_flow \n");
 	struct rtable *rt = __ip_route_output_key(net, flp4);
 
 	if (IS_ERR(rt))

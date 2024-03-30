@@ -515,17 +515,17 @@ get_unique_tuple(struct nf_conntrack_tuple *tuple,
 			}
 		} else if (find_appropriate_src(net, zone,
 						orig_tuple, tuple, range)) {
-			pr_info("[wg] get_unique_tuple: Found current src map\n");
+//			pr_info("[wg] get_unique_tuple: Found current src map\n");
 			if (!nf_nat_used_tuple(tuple, ct))
 				return;
 		}
 	}
 
-	pr_info("[wg]  find_best_ips_proto  update tuple src before %s\n",tuple_to_string(tuple));
+//	pr_info("[wg]  find_best_ips_proto  update tuple src before %s\n",tuple_to_string(tuple));
 	/* 2) Select the least-used IP/proto combination in the given range */
 	*tuple = *orig_tuple;
 	find_best_ips_proto(zone, tuple, range, ct, maniptype);
-	pr_info("[wg]  find_best_ips_proto  update tuple src after %s\n",tuple_to_string(tuple));
+//	pr_info("[wg]  find_best_ips_proto  update tuple src after %s\n",tuple_to_string(tuple));
 	/* 3) The per-protocol part of the manip is made to map into
 	 * the range to make a unique tuple.
 	 */
@@ -615,7 +615,7 @@ nf_nat_setup_info(struct nf_conn *ct,
 
 		srchash = hash_by_src(net,
 				      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
-        pr_info("[wg] init the new_tuple %s hash %d update ct->nat_bysource \n",tuple_to_string(&new_tuple),srchash);
+//        pr_info("[wg] init the new_tuple %s hash %d update ct->nat_bysource \n",tuple_to_string(&new_tuple),srchash);
 		lock = &nf_nat_locks[srchash % CONNTRACK_LOCKS];
 		spin_lock_bh(lock);
         // [wg-note] 将ct加入到nf_nat_bysource[srchash]链表中
@@ -666,7 +666,7 @@ unsigned int nf_nat_packet(struct nf_conn *ct,
 			   unsigned int hooknum,
 			   struct sk_buff *skb)
 {
-	pr_debug("[wg] [nat] nf_nat_packet \n");
+//	pr_info("[wg] [nat] nf_nat_packet \n");
 	enum nf_nat_manip_type mtype = HOOK2MANIP(hooknum);
 	enum ip_conntrack_dir dir = CTINFO2DIR(ctinfo);
 	unsigned int verdict = NF_ACCEPT;

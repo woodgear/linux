@@ -141,6 +141,7 @@
 #include <linux/mroute.h>
 #include <linux/netlink.h>
 #include <net/dst_metadata.h>
+#include <net/wg_debug.h>
 
 /*
  *	Process Router Attention IP option (RFC 2113)
@@ -425,8 +426,13 @@ static int ip_rcv_finish(struct net *net, struct sock *sk, struct sk_buff *skb)
 		return NET_RX_SUCCESS;
 
 	ret = ip_rcv_finish_core(net, sk, skb, dev, NULL);
-	if (ret != NET_RX_DROP)
+    if (is_our_skb(skb)) {
+        pr_info("[wg] ip_rcv_finish %s ret %d\n",skb_to_string(skb), ret);
+    }
+
+	if (ret != NET_RX_DROP) {
 		ret = dst_input(skb);
+    }
 	return ret;
 }
 

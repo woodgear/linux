@@ -356,7 +356,7 @@ static bool nf_nat_ipv4_manip_pkt(struct sk_buff *skb,
 				  const struct nf_conntrack_tuple *target,
 				  enum nf_nat_manip_type maniptype)
 {
-    pr_info("[wg] [masq] [nf_nat_ipv4_manip_pkt] %s \n",skb_to_string(skb));
+//    pr_info("[wg] [masq] [nf_nat_ipv4_manip_pkt] %s \n",skb_to_string(skb));
     // dump_stack();
 	struct iphdr *iph;
 	unsigned int hdroff;
@@ -379,7 +379,7 @@ static bool nf_nat_ipv4_manip_pkt(struct sk_buff *skb,
 		iph->daddr = target->dst.u3.ip;
 	}
 
-    pr_info("[wg] [masq] [nf_nat_ipv4_manip_pkt] leave %s \n",skb_to_string(skb));
+//    pr_info("[wg] [masq] [nf_nat_ipv4_manip_pkt] leave %s \n",skb_to_string(skb));
 	return true;
 }
 

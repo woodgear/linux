@@ -18,7 +18,7 @@ nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
 		       const struct nf_nat_range2 *range,
 		       const struct net_device *out)
 {
-	pr_info("[wg] [masq] nf_nat_masquerade_ipv4 enter %s %s %s \n",skb_to_string(skb),hooknum_to_string(hooknum),out->name);
+//	pr_info("[wg] [masq] nf_nat_masquerade_ipv4 enter %s %s %s \n",skb_to_string(skb),hooknum_to_string(hooknum),out->name);
 	struct nf_conn *ct;
 	struct nf_conn_nat *nat;
 	enum ip_conntrack_info ctinfo;
@@ -37,7 +37,7 @@ nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
 	 * probably not supposed to be masqueraded.
 	 */
 	if (ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple.src.u3.ip == 0) {
-	    pr_info("[wg] [masq] src ip is 0?\n");
+//	    pr_info("[wg] [masq] src ip is 0?\n");
 		return NF_ACCEPT;
     }
 
@@ -49,7 +49,7 @@ nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
 		return NF_DROP;
 	}
 
-	pr_info("[wg] [masq] [nf_nat_masquerade_ipv4] nh %pI4 newsrc %pI4 | %s %s %s \n",&nh,&newsrc,skb_to_string(skb),hooknum_to_string(hooknum),out->name);
+//	pr_info("[wg] [masq] [nf_nat_masquerade_ipv4] nh %pI4 newsrc %pI4 | %s %s %s \n",&nh,&newsrc,skb_to_string(skb),hooknum_to_string(hooknum),out->name);
 	nat = nf_ct_nat_ext_add(ct);
 	if (nat)
 		nat->masq_index = out->ifindex;
@@ -65,7 +65,7 @@ nf_nat_masquerade_ipv4(struct sk_buff *skb, unsigned int hooknum,
 
 	/* Hand modified range to generic setup. */
 	unsigned int ret = nf_nat_setup_info(ct, &newrange, NF_NAT_MANIP_SRC);
-	pr_info("[wg] [masq] [nf_nat_masquerade_ipv4] leave | %s %s %s \n",skb_to_string(skb),hooknum_to_string(hooknum),out->name);
+//	pr_info("[wg] [masq] [nf_nat_masquerade_ipv4] leave | %s %s %s \n",skb_to_string(skb),hooknum_to_string(hooknum),out->name);
     return ret;
 }
 EXPORT_SYMBOL_GPL(nf_nat_masquerade_ipv4);

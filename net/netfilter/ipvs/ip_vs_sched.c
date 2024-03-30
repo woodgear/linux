@@ -211,7 +211,7 @@ int register_ip_vs_scheduler(struct ip_vs_scheduler *scheduler)
 	list_add(&scheduler->n_list, &ip_vs_schedulers);
 	mutex_unlock(&ip_vs_sched_mutex);
 
-	pr_info("[wg] [%s] scheduler registered.\n", scheduler->name);
+//	pr_info("[wg] [%s] scheduler registered.\n", scheduler->name);
 
 	return 0;
 }

@@ -590,9 +590,12 @@ int nf_hook_slow(struct sk_buff *skb, struct nf_hook_state *state,
 	for (; s < e->num_hook_entries; s++) {
         struct nf_hook_entry *he=&e->hooks[s];
 		verdict = nf_hook_entry_hookfn(he, skb, state);
-        // dump_stack();
         count++;
-        pr_info("[wg] nf hook %d %d/%d %pS %s %d\n",count,s,e->num_hook_entries,he->hook,hooknum_to_string(state->hook),verdict);
+       if (is_our_skb(skb)) {
+            pr_info("[wg] nf hook %d %d/%d %pS %s %d %s \n",count,s,e->num_hook_entries,he->hook,hooknum_to_string(state->hook),verdict,skb_to_string(skb));
+            dump_stack();
+       }
+
 		switch (verdict & NF_VERDICT_MASK) {
 		case NF_ACCEPT:
 			break;

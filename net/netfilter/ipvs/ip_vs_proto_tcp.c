@@ -65,18 +65,18 @@ tcp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 	/* No !th->ack check to allow scheduling on SYN+ACK for Active FTP */
 
 	if (likely(!ip_vs_iph_inverse(iph))) {
-	    printk(KERN_INFO "[wg] tcp schedule not inverse daddr dport %pI4 %u try to find svc for this daddr and dport\n", &iph->daddr, ntohs(ports[1]));
+//	    pr_info( "[wg] tcp schedule not inverse daddr dport %pI4 %u try to find svc for this daddr and dport\n", &iph->daddr, ntohs(ports[1]));
 		svc = ip_vs_service_find(ipvs, af, skb->mark, iph->protocol,
 					 &iph->daddr, ports[1]);
     }
 	else {
-	    printk(KERN_INFO "[wg] tcp schedule inverse saddr sport %pI4 %d\n", &iph->daddr, ports[1]);
+//	    pr_info( "[wg] tcp schedule inverse saddr sport %pI4 %d\n", &iph->daddr, ports[1]);
 		svc = ip_vs_service_find(ipvs, af, skb->mark, iph->protocol,
 					 &iph->saddr, ports[0]);
     }
 
 	if (svc) {
-	    printk(KERN_INFO "[wg] get svc\n");
+//	    pr_info( "[wg] get svc\n");
 		int ignored;
 
 		if (ip_vs_todrop(ipvs)) {
@@ -84,7 +84,7 @@ tcp_conn_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 			 * It seems that we are very loaded.
 			 * We have to drop this packet :(
 			 */
-	        printk(KERN_INFO "[wg] very loaded\n");
+//	        pr_info( "[wg] very loaded\n");
 			*verdict = NF_DROP;
 			return 0;
 		}
@@ -231,7 +231,7 @@ static int
 tcp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 		 struct ip_vs_conn *cp, struct ip_vs_iphdr *iph)
 {
-    printk(KERN_DEBUG "[wg] tcp dnat");
+//    pr_info( "[wg] tcp dnat");
 	struct tcphdr *tcph;
 	unsigned int tcphoff = iph->len;
 	bool payload_csum = false;

@@ -446,7 +446,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 	       struct ip_vs_proto_data *pd, int *ignored,
 	       struct ip_vs_iphdr *iph)
 {
-	printk(KERN_INFO "[wg] do real schedule | %s \n",skb_to_string(skb));
+//	pr_info( "[wg] do real schedule | %s \n",skb_to_string(skb));
 	struct ip_vs_protocol *pp = pd->pp;
 	struct ip_vs_conn *cp = NULL;
 	struct ip_vs_scheduler *sched;
@@ -551,7 +551,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 
 		ip_vs_conn_fill_param(svc->ipvs, svc->af, iph->protocol,
 				      caddr, cport, vaddr, vport, &p);
-        printk(KERN_INFO "[wg] create a real connection here | %s \n",skb_to_string(skb));
+//        pr_info( "[wg] create a real connection here | %s \n",skb_to_string(skb));
 		cp = ip_vs_conn_new(&p, dest->af, &dest->addr,
 				    dest->port ? dest->port : vport,
 				    flags, dest, skb->mark);
@@ -561,7 +561,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 		}
 	}
 
-	pr_info("[wg] Schedule cp %s\n",cp_to_string(cp));
+//	pr_info("[wg] Schedule cp %s\n",cp_to_string(cp));
 	IP_VS_DBG_BUF(6, "Schedule fwd:%c c:%s:%u v:%s:%u "
 		      "d:%s:%u conn->flags:%X conn->refcnt:%d\n",
 		      ip_vs_fwd_tag(cp),
@@ -1269,13 +1269,13 @@ handle_response(int af, struct sk_buff *skb, struct ip_vs_proto_data *pd,
 		unsigned int hooknum)
 {
     
-    pr_info(KERN_INFO "[wg] handle_response: %s \n",skb_to_string(skb));
+//    pr_info(KERN_INFO "[wg] handle_response: %s \n",skb_to_string(skb));
 	struct ip_vs_protocol *pp = pd->pp;
 
 	if (IP_VS_FWD_METHOD(cp) != IP_VS_CONN_F_MASQ)
 		goto after_nat;
 
-    pr_info(KERN_INFO "[wg] Outgoing packet: %s \n",skb_to_string(skb));
+//    pr_info(KERN_INFO "[wg] Outgoing packet: %s \n",skb_to_string(skb));
 	IP_VS_DBG_PKT(11, af, pp, skb, iph->off, "Outgoing packet");
 
 	if (skb_ensure_writable(skb, iph->len))
@@ -1293,7 +1293,7 @@ handle_response(int af, struct sk_buff *skb, struct ip_vs_proto_data *pd,
 	else
 #endif
 	{
-        pr_info(KERN_INFO "[wg] will change saddr to %pI4: %s \n",&cp->vaddr.ip,skb_to_string(skb));
+//        pr_info(KERN_INFO "[wg] will change saddr to %pI4: %s \n",&cp->vaddr.ip,skb_to_string(skb));
 		ip_hdr(skb)->saddr = cp->vaddr.ip;
 		ip_send_check(ip_hdr(skb));
 	}
@@ -1314,7 +1314,7 @@ handle_response(int af, struct sk_buff *skb, struct ip_vs_proto_data *pd,
 	 * the routing information.
 	 */
 
-    pr_info(KERN_INFO "[wg] ip_vs_route_me_harder  %s \n",skb_to_string(skb));
+//    pr_info(KERN_INFO "[wg] ip_vs_route_me_harder  %s \n",skb_to_string(skb));
 	if (ip_vs_route_me_harder(cp->ipvs, af, skb, hooknum))
 		goto drop;
 
@@ -1356,7 +1356,7 @@ ip_vs_hooknum_str(unsigned int hooknum) {
 static unsigned int
 ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int af)
 {
-	printk(KERN_INFO "[wg] in ip_vs_out %d %s| skb %s\n", hooknum,ip_vs_hooknum_str(hooknum),skb_to_string(skb));
+//	pr_info( "[wg] in ip_vs_out %d %s| skb %s\n", hooknum,ip_vs_hooknum_str(hooknum),skb_to_string(skb));
 	struct ip_vs_iphdr iph;
 	struct ip_vs_protocol *pp;
 	struct ip_vs_proto_data *pd;
@@ -1368,7 +1368,7 @@ ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, in
 	/* Already marked as IPVS request or reply? */
     // seted in  ip_vs_nat_send_or_cont and handle_response
 	if (skb->ipvs_property) {
-	    pr_info(KERN_INFO "[wg] already masked |%s\n",skb_to_string(skb));
+//	    pr_info(KERN_INFO "[wg] already masked |%s\n",skb_to_string(skb));
 		return NF_ACCEPT;
     }
 
@@ -1425,7 +1425,7 @@ ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, in
 			ip_vs_fill_iph_skb(AF_INET, skb, false, &iph);
 		}
 
-    printk(KERN_INFO "[wg]  get output conn | %s\n",skb_to_string(skb));
+//    pr_info( "[wg]  get output conn | %s\n",skb_to_string(skb));
 	/*
 	 * Check if the packet belongs to an existing entry
 	 */
@@ -1433,10 +1433,10 @@ ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, in
 			     ipvs, af, skb, &iph);
 
 	if (likely(cp)) {
-        printk(KERN_INFO "[wg]  belong to a exist entry| %s\n",skb_to_string(skb));
+//        pr_info( "[wg]  belong to a exist entry| %s\n",skb_to_string(skb));
 		return handle_response(af, skb, pd, cp, &iph, hooknum);
     }
-    printk(KERN_INFO "[wg] not a packet reveived from remote| %s\n",skb_to_string(skb));
+//    pr_info( "[wg] not a packet reveived from remote| %s\n",skb_to_string(skb));
 
 	/* Check for real-server-started requests */
 	if (atomic_read(&ipvs->conn_out_counter)) {
@@ -1459,7 +1459,7 @@ ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, in
 	     pp->protocol == IPPROTO_SCTP)) {
 		__be16 _ports[2], *pptr;
 
-        printk(KERN_INFO "[wg] send icmp \n");
+//        pr_info( "[wg] send icmp \n");
 
 		pptr = frag_safe_skb_hp(skb, iph.len,
 					 sizeof(_ports), _ports);
@@ -1496,7 +1496,7 @@ ip_vs_out(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, in
 			}
 		}
 	}
-    printk(KERN_INFO "[wg] packet continues traversal as normal |%s\n",skb_to_string(skb));
+//    pr_info( "[wg] packet continues traversal as normal |%s\n",skb_to_string(skb));
 	IP_VS_DBG_PKT(12, af, pp, skb, iph.off,
 		      "ip_vs_out: packet continues traversal as normal");
 	return NF_ACCEPT;
@@ -1511,7 +1511,7 @@ static unsigned int
 ip_vs_reply4(void *priv, struct sk_buff *skb,
 	     const struct nf_hook_state *state)
 {
-    pr_info(KERN_INFO "[wg] ipvs_reply4: %s \n",skb_to_string(skb));
+//    pr_info(KERN_INFO "[wg] ipvs_reply4: %s \n",skb_to_string(skb));
 	return ip_vs_out(net_ipvs(state->net), state->hook, skb, AF_INET);
 }
 
@@ -1523,7 +1523,7 @@ static unsigned int
 ip_vs_local_reply4(void *priv, struct sk_buff *skb,
 		   const struct nf_hook_state *state)
 {
-    pr_info(KERN_INFO "[wg] ip_vs_local_reply4 call ip_vs_out |%s\n",skb_to_string(skb));
+//    pr_info(KERN_INFO "[wg] ip_vs_local_reply4 call ip_vs_out |%s\n",skb_to_string(skb));
 	return ip_vs_out(net_ipvs(state->net), state->hook, skb, AF_INET);
 }
 
@@ -1567,7 +1567,7 @@ ip_vs_try_to_schedule(struct netns_ipvs *ipvs, int af, struct sk_buff *skb,
 		 * replayed fragment zero will already have created the cp
 		 */
 
-        printk(KERN_INFO "[wg] !iph->fragoffs call conn_schedule|%s\n",skb_to_string(skb));
+//        pr_info( "[wg] !iph->fragoffs call conn_schedule|%s\n",skb_to_string(skb));
 		/* Schedule and create new connection entry into cpp */
 		if (!pp->conn_schedule(ipvs, af, skb, pd, verdict, cpp, iph)) {
 		    IP_VS_DBG_PKT(6, af, pp, skb, iph->off,
@@ -2004,7 +2004,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
     // 2. 调度完成之后,走nat,改掉daddr 和dport
     // [wg-note] ip_vs_out代表的是从外部向client发送请求的路径
     // 1. 如果是一个已经建立好的conn,那么就走handleresponse的逻辑,把saddr改掉
-	pr_info(KERN_INFO "[wg] in ip_vs_in %d %s| skb %s\n", hooknum,ip_vs_hooknum_str(hooknum),skb_to_string(skb));
+//	pr_info(KERN_INFO "[wg] in ip_vs_in %d %s| skb %s\n", hooknum,ip_vs_hooknum_str(hooknum),skb_to_string(skb));
 	struct ip_vs_iphdr iph;
 	struct ip_vs_protocol *pp;
 	struct ip_vs_proto_data *pd;
@@ -2016,7 +2016,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 	/* Already marked as IPVS request or reply? */
     // seted in  ip_vs_nat_send_or_cont
 	if (skb->ipvs_property) {
-	    pr_info(KERN_INFO "[wg] already masked |%s\n",skb_to_string(skb));
+//	    pr_info(KERN_INFO "[wg] already masked |%s\n",skb_to_string(skb));
 		return NF_ACCEPT;
     }
 
@@ -2087,7 +2087,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 	pp = pd->pp;
 
 
-    printk(KERN_INFO "[wg] ip_vs_conn_in_get |%s\n",skb_to_string(skb));
+//    pr_info( "[wg] ip_vs_conn_in_get |%s\n",skb_to_string(skb));
 	/*
 	 * Check if the packet belongs to an existing connection entry
 	 */
@@ -2096,7 +2096,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 	conn_reuse_mode = sysctl_conn_reuse_mode(ipvs);
 	if (conn_reuse_mode && !iph.fragoffs && is_new_conn(skb, &iph) && cp) {
-        printk(KERN_INFO "[wg] in reuse \n");
+//        pr_info( "[wg] in reuse \n");
 		bool old_ct = false, resched = false;
 
 		if (unlikely(sysctl_expire_nodest_conn(ipvs)) && cp->dest &&
@@ -2123,7 +2123,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 				ip_vs_conn_expire_now(cp);
 			__ip_vs_conn_put(cp);
 			if (old_ct) {
-                printk(KERN_INFO "[wg] old ct drop \n");
+//                pr_info( "[wg] old ct drop \n");
 				return NF_DROP;
             }
 			cp = NULL;
@@ -2132,7 +2132,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 	/* Check the server status */
 	if (cp && cp->dest && !(cp->dest->flags & IP_VS_DEST_F_AVAILABLE)) {
-        printk(KERN_INFO "[wg] dest not avaiable \n");
+//        pr_info( "[wg] dest not avaiable \n");
 		/* the destination server is not available */
 		if (sysctl_expire_nodest_conn(ipvs)) {
 			bool old_ct = ip_vs_conn_uses_old_conntrack(cp, skb);
@@ -2153,16 +2153,16 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 	if (unlikely(!cp)) {
 		int v;
-        printk(KERN_INFO "[wg] ip_vs_conn not found try to schedlue |%s\n",skb_to_string(skb));
+//        pr_info( "[wg] ip_vs_conn not found try to schedlue |%s\n",skb_to_string(skb));
 		if (!ip_vs_try_to_schedule(ipvs, af, skb, pd, &v, &cp, &iph)) {
-            printk(KERN_INFO "[wg] schedule not ok ipvs_in return \n");
+//            pr_info( "[wg] schedule not ok ipvs_in return \n");
 	        IP_VS_DBG_PKT(6, af, pp, skb, iph.off, "schedule not ok ipvs_in return");
 			return v;
         }
-        printk(KERN_INFO "[wg] here \n");
+//        pr_info( "[wg] here \n");
 	}
 
-    printk(KERN_INFO "[wg] incoming |%s\n",skb_to_string(skb));
+//    pr_info( "[wg] incoming |%s\n",skb_to_string(skb));
 	IP_VS_DBG_PKT(11, af, pp, skb, iph.off, "Incoming packet");
 
 	ip_vs_in_stats(cp, skb);
@@ -2175,7 +2175,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 		IP_VS_DBG_RL("warning: packet_xmit is null");
 		ret = NF_ACCEPT;
 	}
-    pr_info(KERN_INFO "[wg] xmit end |skb %s\n",skb_to_string(skb));
+//    pr_info(KERN_INFO "[wg] xmit end |skb %s\n",skb_to_string(skb));
 
 	/* Increase its packet counter and check if it is needed
 	 * to be synchronized
@@ -2199,7 +2199,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 	ip_vs_conn_put(cp);
 
-    pr_info(KERN_INFO "[wg] ipvs_in end |skb %s\n",skb_to_string(skb));
+//    pr_info(KERN_INFO "[wg] ipvs_in end |skb %s\n",skb_to_string(skb));
 	return ret;
 }
 
@@ -2211,7 +2211,7 @@ static unsigned int
 ip_vs_remote_request4(void *priv, struct sk_buff *skb,
 		      const struct nf_hook_state *state)
 {
-    printk(KERN_INFO "[wg] ip_vs_remote_request4 |%s\n",skb_to_string(skb));
+//    pr_info( "[wg] ip_vs_remote_request4 |%s\n",skb_to_string(skb));
 	return ip_vs_in(net_ipvs(state->net), state->hook, skb, AF_INET);
 }
 
@@ -2224,7 +2224,7 @@ ip_vs_local_request4(void *priv, struct sk_buff *skb,
 		     const struct nf_hook_state *state)
 {
 
-	pr_info("[wg]: ip_vs_local_request4 call ip_vs_in|%s\n",skb_to_string(skb));
+//	pr_info("[wg]: ip_vs_local_request4 call ip_vs_in|%s\n",skb_to_string(skb));
 	return ip_vs_in(net_ipvs(state->net), state->hook, skb, AF_INET);
 }
 

@@ -1,5 +1,4 @@
 #!/bin/bash
-source ./actions/rootfs/actions.sh
 function lx-gen-cofnig() (
   #   make defconfig # 生成 .config文件
   # 1. ipvs 变成动态模块
@@ -26,7 +25,8 @@ function lx-unit() (
 
 function lx-build() (
   #   lx-gen-cofnig # 生成 .config文件 config已经生成好了 不能该
-  set -e
+  set -ex
+  local start=$(date)
   cp ./.config.cong ./.config
   time make -j 10
 
@@ -37,7 +37,28 @@ function lx-build() (
   sudo make modules_install
   sudo rm -rf /lib/modules/5.13.0wg+/build
   sudo rm -rf /lib/modules/5.13.0wg+/source
+
+  local end=$(date)
+  echo "start: $start"
+  echo "end: $end"
   return
+)
+
+function lx-rf-build() (
+  set -xe
+  cd $PWD/actions
+  rm ./rootfs.ext4 || true
+  dd if=/dev/zero of=rootfs.ext4 bs=1G count=3
+  mkfs.ext4 rootfs.ext4
+  md5sum ./rootfs.ext4
+  sudo umount /tmp/my-rootfs || true
+  sudo rm -rf /tmp/my-rootfs || true
+  mkdir /tmp/my-rootfs
+  sudo mount rootfs.ext4 /tmp/my-rootfs
+  echo "build rootfs via docker"
+  docker run --network host --rm -v /lib/modules/5.13.0wg+/:/lib/modules/5.13.0wg+  -v $PWD/init-alpine.sh:/init-alpine.sh -v /tmp/my-rootfs:/my-rootfs alpine sh /init-alpine.sh
+  sudo umount /tmp/my-rootfs
+  md5sum ./rootfs.ext4
 )
 
 function lx-readme() {
@@ -157,7 +178,7 @@ function lx-boot() {
     -kernel $PWD/arch/x86_64/boot/bzImage \
     -boot c \
     -m 2049M \
-    -hda $PWD/actions/rootfs/rootfs.ext4 \
+    -hda $PWD/actions/rootfs.ext4 \
     -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
     -serial mon:stdio \
     -display none \

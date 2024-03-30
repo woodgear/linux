@@ -68,6 +68,30 @@ static inline char*  skb_to_string(struct sk_buff *skb) {
     return buf;
 }
 
+static inline bool is_our_skb(struct sk_buff *skb) {
+    static char buf[128];
+    struct sk_buff *__skb = skb; 
+    struct iphdr *__ip_header; 
+    struct tcphdr *__tcp_header; 
+    struct udphdr *__udp_header; 
+
+    if (__skb->protocol != htons(ETH_P_IP)) { 
+        return false;
+    }
+
+    __ip_header = ip_hdr(__skb); 
+    if (__ip_header->protocol != IPPROTO_TCP) { 
+        return false;
+    }
+	__tcp_header = tcp_hdr(__skb); 
+    unsigned short sport=ntohs(__tcp_header->source);
+    unsigned short dport=ntohs(__tcp_header->dest);
+    if (sport == 8001 || sport==8000 || dport == 8001 || dport==8000) {
+        return true;
+    }
+    return false;
+}
+
 static inline char*  tuple_to_string(struct nf_conntrack_tuple  *tuple) {
     static char buf[128];
     snprintf(buf, sizeof(buf), "src=%pI4:%hu, dst=%pI4:%hu, proto=%hhu",

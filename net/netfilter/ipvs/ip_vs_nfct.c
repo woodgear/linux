@@ -70,16 +70,16 @@
 void
 ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 {
-    printk(KERN_DEBUG "[wg] in update conntrack|%s\n",skb_to_string(skb));
+//    pr_info( "[wg] in update conntrack|%s\n",skb_to_string(skb));
 	enum ip_conntrack_info ctinfo;
 	struct nf_conn *ct = nf_ct_get(skb, &ctinfo);
 	struct nf_conntrack_tuple new_tuple;
 
 	if (ct == NULL || nf_ct_is_confirmed(ct) || nf_ct_is_dying(ct)) {
-        printk(KERN_DEBUG "[wg] ct is null|%s\n",skb_to_string(skb));
+//        pr_info( "[wg] ct is null|%s\n",skb_to_string(skb));
 		return;
     }
-    printk(KERN_DEBUG "[wg] ct not null|%s\n",skb_to_string(skb));
+//    pr_info( "[wg] ct not null|%s\n",skb_to_string(skb));
 
 	/* Never alter conntrack for non-NAT conns */
 	if (IP_VS_FWD_METHOD(cp) != IP_VS_CONN_F_MASQ)
@@ -105,7 +105,7 @@ ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 	 * real-server we will see RIP->DIP.
 	 */
 	new_tuple = ct->tuplehash[IP_CT_DIR_REPLY].tuple;
-    pr_info("[wg] update conntrack orgin  %s\n",tuple_to_string(&new_tuple));
+//    pr_info("[wg] update conntrack orgin  %s\n",tuple_to_string(&new_tuple));
 	/*
 	 * This will also take care of UDP and other protocols.
 	 */
@@ -121,10 +121,10 @@ ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 			new_tuple.dst.u.tcp.port = cp->vport;
 	}
 
-    pr_info("[wg] update conntrack new  %s\n",tuple_to_string(&new_tuple));
-	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, " "ctinfo=%d, old reply=" FMT_TUPLE "\n", __func__, ct, ct->status, ctinfo, ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
+//    pr_info("[wg] update conntrack new  %s\n",tuple_to_string(&new_tuple));
+//	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, " "ctinfo=%d, old reply=" FMT_TUPLE "\n", __func__, ct, ct->status, ctinfo, ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
 
-	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, " "ctinfo=%d, new reply=" FMT_TUPLE "\n", __func__, ct, ct->status, ctinfo, ARG_TUPLE(&new_tuple));
+//	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, " "ctinfo=%d, new reply=" FMT_TUPLE "\n", __func__, ct, ct->status, ctinfo, ARG_TUPLE(&new_tuple));
 
 	nf_conntrack_alter_reply(ct, &new_tuple);
 

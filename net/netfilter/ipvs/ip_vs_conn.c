@@ -130,11 +130,11 @@ static unsigned int ip_vs_conn_hashkey_param(const struct ip_vs_conn_param *p,
 			ip_vs_conn_tab_mask;
 
 	if (likely(!inverse)) {
-        printk(KERN_INFO "[wg] hash with caddr %pI4 cport %d \n",&p->caddr->ip,ntohs(p->cport));
+//        pr_info( "[wg] hash with caddr %pI4 cport %d \n",&p->caddr->ip,ntohs(p->cport));
 		addr = p->caddr;
 		port = p->cport;
 	} else {
-        printk(KERN_INFO "[wg] hash with vaddr %pI4  vport %d \n",&p->vaddr->ip,ntohs(p->vport));
+//        pr_info( "[wg] hash with vaddr %pI4  vport %d \n",&p->vaddr->ip,ntohs(p->vport));
 		addr = p->vaddr;
 		port = p->vport;
 	}
@@ -853,7 +853,7 @@ static void ip_vs_conn_expire(struct timer_list *t)
 	struct ip_vs_conn *cp = from_timer(cp, t, timer);
 	struct netns_ipvs *ipvs = cp->ipvs;
 
-    printk(KERN_DEBUG "[wg] in ipvs_conn_expires\n");
+//    pr_info( "[wg] in ipvs_conn_expires\n");
 	/*
 	 *	do I control anybody?
 	 */
