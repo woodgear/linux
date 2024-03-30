@@ -1998,11 +1998,11 @@ out:
 static unsigned int
 ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int af)
 {
-    // [wg] ip_vs_in代表的是从主机向一个vip发送请求的路径
+    // [wg-note] ip_vs_in代表的是从主机向一个vip发送请求的路径
     // 1. 如果之前没有调度过，那么就调度一次 
     //        这里会生成一个conn (key是cip和cport),如果目标地址是这个key,那么就是一个已经建立好的conn了
     // 2. 调度完成之后,走nat,改掉daddr 和dport
-    // [wg] ip_vs_out代表的是从外部向client发送请求的路径
+    // [wg-note] ip_vs_out代表的是从外部向client发送请求的路径
     // 1. 如果是一个已经建立好的conn,那么就走handleresponse的逻辑,把saddr改掉
 	pr_info(KERN_INFO "[wg] in ip_vs_in %d %s| skb %s\n", hooknum,ip_vs_hooknum_str(hooknum),skb_to_string(skb));
 	struct ip_vs_iphdr iph;
@@ -2083,7 +2083,7 @@ ip_vs_in(struct netns_ipvs *ipvs, unsigned int hooknum, struct sk_buff *skb, int
 
 		return NF_ACCEPT;
 	}
-    // [wg] 在从ipvs_proto_data中拿到ipvs_protocol,ipvs_protocol中包含了各种回调函数
+    // [wg-note] 在从ipvs_proto_data中拿到ipvs_protocol,ipvs_protocol中包含了各种回调函数
 	pp = pd->pp;
 
 

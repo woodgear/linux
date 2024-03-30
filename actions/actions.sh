@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ./actions/rootfs/actions.sh
 function lx-gen-cofnig() (
   #   make defconfig # 生成 .config文件
   # 1. ipvs 变成动态模块
@@ -45,6 +45,11 @@ function lx-readme() {
   # 1. 重新编译一个bzimage,然后重启qemu 虚拟机
   # 2. 重新编译内核模块然后在linux中加载
 
+  # 1. lx-build -> build 一个bzimage
+  # 2. lx-rf-build -> build 一个rootfs
+  # 3. lx-boot -> 启动qemu虚拟机
+  # 4.
+
   return
 }
 
@@ -83,6 +88,50 @@ function lx-note() {
 
 function lx-init-fs() {
   return
+}
+
+function lx-show-log() {
+  # 注意必须是单行的
+  # ^ 行首
+  # (\s*) 任意空格
+  # (\/\/)? 有可能已经被注释了
+  # (\s*) 任意空格
+  # ([^\s]*.*\[wg\].*;)
+  #  [^\s]*不为空格的字符
+  #  .* 任意字符
+  #  ; 分号
+  rg --line-number --no-heading -g '*.c' "^(\s*)(\/\/)?(\s*)([^\s]*.*\[wg\].*;)\s*$" -r '$1 $2' ./
+}
+
+function pcall() {
+  ./actions/pcall.py $@
+}
+
+function lx-modify-all-log() {
+  local seq="@@@@"
+  local prefix="$1"
+  rg --line-number --no-heading -g '*.c' "\[wg\]" ./
+  rm ./.replaces
+  touch ./.replaces
+
+  while read -r line; do
+    # echo -E "$line"
+    local file_and_line=$(echo -E "$line" | awk -F "$seq" '{print $1}')
+    local file=$(echo -E "$file_and_line" | awk -F ":" '{print $1}')
+    local line_number=$(echo -E "$file_and_line" | awk -F ":" '{print $2}')
+    local code=$(echo -E "$line" | awk -F "$seq" '{print $2}')
+    echo -E "$code"
+    echo -E "${file}${seq}${line_number}${seq}${prefix}${code}" >>./.replaces
+  done < <(rg --line-number --no-heading -g '*.c' "^(//)?(\s*[^\s]*.*\[wg\].*;)\s*$" -r "$seq\$2" ./ | cat)
+  pcall replace-line ./.replaces $seq
+}
+
+function lx-enable-all-log() {
+  lx-modify-all-log ""
+}
+
+function lx-disable-all-log() {
+  lx-modify-all-log "//"
 }
 
 function lx-boot() {

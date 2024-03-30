@@ -268,7 +268,7 @@ tcp_dnat_handler(struct sk_buff *skb, struct ip_vs_protocol *pp,
 	}
 
 	tcph = (void *)skb_network_header(skb) + tcphoff;
-    // [wg] update port
+    // [wg-note] update port
 	tcph->dest = cp->dport;
 
 	/*

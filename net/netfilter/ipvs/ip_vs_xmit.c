@@ -338,9 +338,7 @@ __ip_vs_get_out_rt(struct netns_ipvs *ipvs, int skb_af, struct sk_buff *skb,
 			}
 			__ip_vs_dst_set(dest, dest_dst, &rt->dst, 0);
 			spin_unlock_bh(&dest->dst_lock);
-			IP_VS_DBG(10, "[wg] new dst %pI4, src %pI4, refcnt=%d\n",
-				  &dest->addr.ip, &dest_dst->dst_saddr.ip,
-				  atomic_read(&rt->dst.__refcnt));
+			IP_VS_DBG(10, "[wg] new dst %pI4, src %pI4, refcnt=%d\n", &dest->addr.ip, &dest_dst->dst_saddr.ip, atomic_read(&rt->dst.__refcnt));
 		}
 		if (ret_saddr)
 			*ret_saddr = dest_dst->dst_saddr.ip;
@@ -840,10 +838,9 @@ ip_vs_nat_xmit(struct sk_buff *skb, struct ip_vs_conn *cp,
 	/* mangle the packet */
 	if (pp->dnat_handler && !pp->dnat_handler(skb, pp, cp, ipvsh))
 		goto tx_error;
-    // [wg] change dest ip here
+    // [wg-note] change dest ip here
 	ip_hdr(skb)->daddr = cp->daddr.ip;
     printk(KERN_INFO "[wg] change daddr here after dnat  %s \n",ipv4_to_string(cp->daddr.ip));
-    //pr_info(KERN_INFO "[wg] after dnat daddr %pI4\n",cp->daddr.ip);
 	ip_send_check(ip_hdr(skb));
 
 	/* FIXME: when application helper enlarges the packet and the length

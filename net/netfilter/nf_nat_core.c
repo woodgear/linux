@@ -595,7 +595,7 @@ nf_nat_setup_info(struct nf_conn *ct,
 
 		/* Alter conntrack table so will recognize replies. */
 		nf_ct_invert_tuple(&reply, &new_tuple);
-        // [wg] 更新ct上的tuplehash[IP_CT_DIR_REPLY].tuple为reply,实际上就是new_tuple 也就是newsrc的值 也就是vmip的值
+        // [wg-note] 更新ct上的tuplehash[IP_CT_DIR_REPLY].tuple为reply,实际上就是new_tuple 也就是newsrc的值 也就是vmip的值
 		nf_conntrack_alter_reply(ct, &reply);
 
 		/* Non-atomic: we own this at the moment. */
@@ -616,12 +616,9 @@ nf_nat_setup_info(struct nf_conn *ct,
 		srchash = hash_by_src(net,
 				      &ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple);
         pr_info("[wg] init the new_tuple %s hash %d update ct->nat_bysource \n",tuple_to_string(&new_tuple),srchash);
-        // pr_info("[wg] init new src backtrace start \n");
-        // dump_stack();
-        // pr_info("[wg] init new src backtrace end \n");
 		lock = &nf_nat_locks[srchash % CONNTRACK_LOCKS];
 		spin_lock_bh(lock);
-        // [wg] 将ct加入到nf_nat_bysource[srchash]链表中
+        // [wg-note] 将ct加入到nf_nat_bysource[srchash]链表中
 		hlist_add_head_rcu(&ct->nat_bysource,
 				   &nf_nat_bysource[srchash]);
 		spin_unlock_bh(lock);

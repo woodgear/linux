@@ -120,30 +120,14 @@ ip_vs_update_conntrack(struct sk_buff *skb, struct ip_vs_conn *cp, int outin)
 		    new_tuple.dst.protonum != IPPROTO_ICMPV6)
 			new_tuple.dst.u.tcp.port = cp->vport;
 	}
-	// pr_info("[wg] %s: Updating conntrack ct=%p, status=0x%lX, "
-	// 	      "ctinfo=%d, old reply=" FMT_TUPLE "\n",
-	// 	      __func__, ct, ct->status, ctinfo,
-	// 	      ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
 
     pr_info("[wg] update conntrack new  %s\n",tuple_to_string(&new_tuple));
-	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, "
-		      "ctinfo=%d, old reply=" FMT_TUPLE "\n",
-		      __func__, ct, ct->status, ctinfo,
-		      ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
+	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, " "ctinfo=%d, old reply=" FMT_TUPLE "\n", __func__, ct, ct->status, ctinfo, ARG_TUPLE(&ct->tuplehash[IP_CT_DIR_REPLY].tuple));
 
-	// pr_info("[wg]%s: Updating conntrack ct=%p, status=0x%lX, "
-	// 	      "ctinfo=%d, new reply=" FMT_TUPLE "\n",
-	// 	      __func__, ct, ct->status, ctinfo,
-	// 	      ARG_TUPLE(&new_tuple));
-	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, "
-		      "ctinfo=%d, new reply=" FMT_TUPLE "\n",
-		      __func__, ct, ct->status, ctinfo,
-		      ARG_TUPLE(&new_tuple));
+	WG_IP_VS_DBG_BUF(7, "[wg] %s: Updating conntrack ct=%p, status=0x%lX, " "ctinfo=%d, new reply=" FMT_TUPLE "\n", __func__, ct, ct->status, ctinfo, ARG_TUPLE(&new_tuple));
 
 	nf_conntrack_alter_reply(ct, &new_tuple);
 
-	// pr_info("[wg] %s: Updated conntrack ct=%p for cp=" FMT_CONN "\n",
-	// 	      __func__, ct, ARG_CONN(cp));
 	WG_IP_VS_DBG_BUF(7, "%s: Updated conntrack ct=%p for cp=" FMT_CONN "\n",
 		      __func__, ct, ARG_CONN(cp));
 }

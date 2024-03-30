@@ -270,7 +270,7 @@ __ip_vs_conn_in_get(const struct ip_vs_conn_param *p)
 	hash = ip_vs_conn_hashkey_param(p, false);
 
 	rcu_read_lock();
-    // [wg] ipvs的conn实际上存在于ip_vs_conn_tab中，这里通过hash找到对应的链表，然后遍历链表找到对应的conn
+    // [wg-note] ipvs的conn实际上存在于ip_vs_conn_tab中，这里通过hash找到对应的链表，然后遍历链表找到对应的conn
 	hlist_for_each_entry_rcu(cp, &ip_vs_conn_tab[hash], c_list) {
 		if (p->cport == cp->cport && p->vport == cp->vport &&
 		    cp->af == p->af &&
@@ -513,7 +513,7 @@ void ip_vs_conn_fill_cport(struct ip_vs_conn *cp, __be16 cport)
  */
 static inline void ip_vs_bind_xmit(struct ip_vs_conn *cp)
 {
-    // [wg] 设置一些回调函数
+    // [wg-note] 设置一些回调函数
 	switch (IP_VS_FWD_METHOD(cp)) {
 	case IP_VS_CONN_F_MASQ:
 		cp->packet_xmit = ip_vs_nat_xmit;
@@ -1038,7 +1038,7 @@ ip_vs_conn_new(const struct ip_vs_conn_param *p, int dest_af,
 
 	if (ip_vs_conntrack_enabled(ipvs))
 		cp->flags |= IP_VS_CONN_F_NFCT;
-    // [wg]最终写到了 ip_vs_conn_tab 中
+    // [wg-note]最终写到了 ip_vs_conn_tab 中
 
 	/* Hash it in the ip_vs_conn_tab finally */
 	ip_vs_conn_hash(cp);
