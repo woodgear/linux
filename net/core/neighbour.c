@@ -40,7 +40,7 @@
 #include <net/addrconf.h>
 
 #include <trace/events/neigh.h>
-
+#include <net/wg_debug.h>
 #define NEIGH_DEBUG 1
 #define neigh_dbg(level, fmt, ...)		\
 do {						\
@@ -1476,6 +1476,9 @@ static void neigh_hh_init(struct neighbour *n)
 int neigh_resolve_output(struct neighbour *neigh, struct sk_buff *skb)
 {
 //    pr_info("[wg] neigh_resolve_output  \n");
+    if (is_our_skb(skb)) {
+        pr_info("[wg] %s  %s \n",__FUNCTION__,skb_to_string(skb));
+    }
 	int rc = 0;
 
 	if (!neigh_event_send(neigh, skb)) {
@@ -1493,8 +1496,12 @@ int neigh_resolve_output(struct neighbour *neigh, struct sk_buff *skb)
 					      neigh->ha, NULL, skb->len);
 		} while (read_seqretry(&neigh->ha_lock, seq));
 
-		if (err >= 0)
+		if (err >= 0) {
+            if (is_our_skb(skb)) {
+                pr_info("[wg] %s do dev_queue_xmit  %s \n",__FUNCTION__,skb_to_string(skb));
+            }
 			rc = dev_queue_xmit(skb);
+        }
 		else
 			goto out_kfree_skb;
 	}

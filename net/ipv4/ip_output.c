@@ -189,6 +189,7 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 {
     if (is_our_skb(skb)) {
         pr_info("[wg] ip_finish_output2 %s \n",skb_to_string(skb));
+        dump_stack();
     }
 	struct dst_entry *dst = skb_dst(skb);
 	struct rtable *rt = (struct rtable *)dst;
@@ -233,8 +234,14 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
             pr_info("[wg] call sock_confirm_neigh %s %pS %s \n",skb_to_string(skb),neigh->output,neigh->dev->name);
         }
 		sock_confirm_neigh(skb, neigh);
+        if (is_our_skb(skb)) {
+            pr_info("[wg] before neigh_output %s %pS %s \n",skb_to_string(skb),neigh->output,neigh->dev->name);
+        }
 		/* if crossing protocols, can not use the cached header */
 		res = neigh_output(neigh, skb, is_v6gw);
+        if (is_our_skb(skb)) {
+            pr_info("[wg] after neigh_output %s %pS %s \n",skb_to_string(skb),neigh->output,neigh->dev->name);
+        }
 		rcu_read_unlock_bh();
 		return res;
 	}

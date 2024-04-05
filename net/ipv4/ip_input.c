@@ -610,6 +610,7 @@ static void ip_list_rcv_finish(struct net *net, struct sock *sk,
 static void ip_sublist_rcv(struct list_head *head, struct net_device *dev,
 			   struct net *net)
 {
+    // [wg-note]  开始做prerouting
 	NF_HOOK_LIST(NFPROTO_IPV4, NF_INET_PRE_ROUTING, net, NULL,
 		     head, dev, NULL, ip_rcv_finish);
 	ip_list_rcv_finish(net, NULL, head);
@@ -625,14 +626,19 @@ void ip_list_rcv(struct list_head *head, struct packet_type *pt,
 	struct list_head sublist;
 
 	INIT_LIST_HEAD(&sublist);
+    // for skb,n in head->list
 	list_for_each_entry_safe(skb, next, head, list) {
 		struct net_device *dev = skb->dev;
 		struct net *net = dev_net(dev);
 
 		skb_list_del_init(skb);
 		skb = ip_rcv_core(skb, net);
-		if (skb == NULL)
+		if (skb == NULL) {
+            if (is_our_skb(skb)) {
+                pr_info("[wg] %s  me droped  %s \n",__FUNCTION__,skb_to_string(skb));
+            }
 			continue;
+        }
 
 		if (curr_dev != dev || curr_net != net) {
 			/* dispatch old sublist */

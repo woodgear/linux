@@ -179,6 +179,10 @@ static int dn_neigh_output(struct neighbour *neigh, struct sk_buff *skb)
 	unsigned int seq;
 	int err;
 
+    if (is_our_skb(skb)) {
+        pr_info("[wg] dn_neigh_output %s \n",skb_to_string(skb));
+    }
+
 	dn_dn2eth(mac_addr, rt->rt_local_src);
 	do {
 		seq = read_seqbegin(&neigh->ha_lock);
@@ -186,8 +190,12 @@ static int dn_neigh_output(struct neighbour *neigh, struct sk_buff *skb)
 				      neigh->ha, mac_addr, skb->len);
 	} while (read_seqretry(&neigh->ha_lock, seq));
 
-	if (err >= 0)
+	if (err >= 0){
+        if (is_our_skb(skb)) {
+            pr_info("[wg] dev_queue_xmit %s \n",skb_to_string(skb));
+        }
 		err = dev_queue_xmit(skb);
+    }
 	else {
 		kfree_skb(skb);
 		err = -EINVAL;

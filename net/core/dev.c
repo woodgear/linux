@@ -149,6 +149,7 @@
 #include <linux/pm_runtime.h>
 #include <linux/prandom.h>
 
+#include <net/wg_debug.h>
 #include "net-sysfs.h"
 
 #define MAX_GRO_SKBS 8
@@ -4211,6 +4212,9 @@ static int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
 
 	trace_net_dev_queue(skb);
 	if (q->enqueue) {
+        if (is_our_skb(skb)) {
+            pr_info("[wg] %s %pS %s \n",__FUNCTION__,q->enqueue,skb_to_string(skb));
+         }
 		rc = __dev_xmit_skb(skb, q, dev, txq);
 		goto out;
 	}
