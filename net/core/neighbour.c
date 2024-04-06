@@ -41,11 +41,11 @@
 
 #include <trace/events/neigh.h>
 #include <net/wg_debug.h>
-#define NEIGH_DEBUG 1
+#define NEIGH_DEBUG 5
 #define neigh_dbg(level, fmt, ...)		\
 do {						\
 	if (level <= NEIGH_DEBUG)		\
-		pr_debug(fmt, ##__VA_ARGS__);	\
+		pr_info(fmt, ##__VA_ARGS__);	\
 } while (0)
 
 #define PNEIGH_HASHMASK		0xF
@@ -1114,7 +1114,9 @@ int __neigh_event_send(struct neighbour *neigh, struct sk_buff *skb)
 	bool immediate_probe = false;
 
 	write_lock_bh(&neigh->lock);
-
+    if (is_our_skb(skb)) {
+        pr_info("[wg] %s  %s nud state \n",__FUNCTION__,skb_to_string(skb),neigh->nud_state);
+    }
 	rc = 0;
 	if (neigh->nud_state & (NUD_CONNECTED | NUD_DELAY | NUD_PROBE))
 		goto out_unlock_bh;
@@ -1477,7 +1479,7 @@ int neigh_resolve_output(struct neighbour *neigh, struct sk_buff *skb)
 {
 //    pr_info("[wg] neigh_resolve_output  \n");
     if (is_our_skb(skb)) {
-        pr_info("[wg] %s  %s \n",__FUNCTION__,skb_to_string(skb));
+        pr_info("[wg] %s nud state %d %s  \n",__FUNCTION__,neigh->nud_state,skb_to_string(skb));
     }
 	int rc = 0;
 

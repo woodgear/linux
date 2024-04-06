@@ -23,6 +23,11 @@ function lx-unit() (
   ./tools/testing/kunit/kunit.py run
 )
 
+function lx-build-and-boot() (
+    set -e
+    lx-build
+    lx-boot
+)
 function lx-build() (
   #   lx-gen-cofnig # 生成 .config文件 config已经生成好了 不能该
   set -ex
@@ -60,6 +65,39 @@ function lx-rf-build() (
   sudo umount /tmp/my-rootfs
   md5sum ./rootfs.ext4
 )
+
+
+function lx-boot() {
+  # -serial mon:stdio https://unix.stackexchange.com/a/436321
+  #     ctl-a c
+  # -nic user,model=e1000,hostfwd=tcp::2222-:22
+  #     在 /etc/network/interfaces
+  #             auto eth0
+  #             iface eth0 inet dhcp
+
+  #   qemu-system-x86_64 \
+  #     -kernel $PWD/arch/x86_64/boot/bzImage \
+  #     -boot c \
+  #     -m 2049M \
+  #     -hda $PWD/rootfs.ext2 \
+  #     -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
+  #     -serial mon:stdio \
+  #     -display none \
+  #     -netdev bridge,id=hn0,br=virbr0 \
+  #     -device e1000,netdev=hn0,id=nic1 # 注意device后的类型,如果想用 virtio-net-pci的话,必须要内核支持
+
+  qemu-system-x86_64 \
+    -kernel $PWD/arch/x86_64/boot/bzImage \
+    -boot c \
+    -m 2049M \
+    -hda $PWD/actions/rootfs.ext4 \
+    -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
+    -serial mon:stdio \
+    -display none \
+    -netdev bridge,id=hn0,br=virbr0 \
+    -device e1000,netdev=hn0,id=nic1
+  return
+}
 
 function lx-readme() {
   #有两种debug的方式
@@ -155,34 +193,3 @@ function lx-disable-all-log() {
   lx-modify-all-log "//"
 }
 
-function lx-boot() {
-  # -serial mon:stdio https://unix.stackexchange.com/a/436321
-  #     ctl-a c
-  # -nic user,model=e1000,hostfwd=tcp::2222-:22
-  #     在 /etc/network/interfaces
-  #             auto eth0
-  #             iface eth0 inet dhcp
-
-  #   qemu-system-x86_64 \
-  #     -kernel $PWD/arch/x86_64/boot/bzImage \
-  #     -boot c \
-  #     -m 2049M \
-  #     -hda $PWD/rootfs.ext2 \
-  #     -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
-  #     -serial mon:stdio \
-  #     -display none \
-  #     -netdev bridge,id=hn0,br=virbr0 \
-  #     -device e1000,netdev=hn0,id=nic1 # 注意device后的类型,如果想用 virtio-net-pci的话,必须要内核支持
-
-  qemu-system-x86_64 \
-    -kernel $PWD/arch/x86_64/boot/bzImage \
-    -boot c \
-    -m 2049M \
-    -hda $PWD/actions/rootfs.ext4 \
-    -append "root=/dev/sda rw console=ttyS0,115200 acpi=off nokaslr" \
-    -serial mon:stdio \
-    -display none \
-    -netdev bridge,id=hn0,br=virbr0 \
-    -device e1000,netdev=hn0,id=nic1
-  return
-}

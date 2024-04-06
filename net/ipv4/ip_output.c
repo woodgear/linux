@@ -227,6 +227,11 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
 
 	rcu_read_lock_bh();
 	neigh = ip_neigh_for_gw(rt, skb, &is_v6gw);
+    if (is_our_skb(skb)) {
+        pr_info("[wg] %s %p rt_gw4 %pI4  nud state %d %s \n",__FUNCTION__,neigh,&(rt->rt_gw4),neigh->nud_state,skb_to_string(skb));
+    }
+
+
 	if (!IS_ERR(neigh)) {
 		int res;
 
@@ -235,7 +240,7 @@ static int ip_finish_output2(struct net *net, struct sock *sk, struct sk_buff *s
         }
 		sock_confirm_neigh(skb, neigh);
         if (is_our_skb(skb)) {
-            pr_info("[wg] before neigh_output %s %pS %s \n",skb_to_string(skb),neigh->output,neigh->dev->name);
+            pr_info("[wg] before neigh_output  %s %d %pS\n",neigh->dev->name,neigh->nud_state,neigh->output,skb_to_string(skb));
         }
 		/* if crossing protocols, can not use the cached header */
 		res = neigh_output(neigh, skb, is_v6gw);

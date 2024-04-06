@@ -8,7 +8,7 @@ apk add curl
 apk add openssh
 apk add dhcpcd
 apk add dhcpcd-openrc
-apk add vim iproute2 jq yq python3 bash
+apk add vim iproute2 jq yq python3 bash iptables-legacy
 ### init
 ln -s agetty /etc/init.d/agetty.ttyS0
 echo ttyS0 >/etc/securetty

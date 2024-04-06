@@ -27,6 +27,7 @@
 #include <linux/netfilter_ipv4/ip_tables.h>
 #include <net/netfilter/nf_log.h>
 #include "../../netfilter/xt_repldata.h"
+#include <net/wg_debug.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Netfilter Core Team <coreteam@netfilter.org>");
@@ -272,14 +273,17 @@ ipt_do_table(struct sk_buff *skb,
 	 */
 	if (static_key_false(&xt_tee_enabled))
 		jumpstack += private->stacksize * __this_cpu_read(nf_skb_duplicated);
-
+    int count = 0;
 	e = get_entry(table_base, private->hook_entry[hook]);
 
 	do {
+        count=count+1;
 		const struct xt_entry_target *t;
 		const struct xt_entry_match *ematch;
 		struct xt_counters *counter;
-
+        if (is_our_skb(skb)) {
+             pr_info("[wg] %s %d  %s \n",__FUNCTION__,count,skb_to_string(skb));
+        }
 		WARN_ON(!e);
 		if (!ip_packet_match(ip, indev, outdev,
 		    &e->ip, acpar.fragoff)) {
@@ -312,6 +316,9 @@ ipt_do_table(struct sk_buff *skb,
 			int v;
 
 			v = ((struct xt_standard_target *)t)->verdict;
+            if (is_our_skb(skb)) {
+                pr_info("[wg] find match do stand stuff %s %d %d %s \n",__FUNCTION__,count,v,skb_to_string(skb));
+            }
 			if (v < 0) {
 				/* Pop from stack? */
 				if (v != XT_RETURN) {
@@ -344,6 +351,9 @@ ipt_do_table(struct sk_buff *skb,
 		acpar.targinfo = t->data;
 
 		verdict = t->u.kernel.target->target(skb, &acpar);
+        if (is_our_skb(skb)) {
+             pr_info("[wg] find match do stuff %s %d %d %pS %s \n",__FUNCTION__,count,verdict,t->u.kernel.target->target,skb_to_string(skb));
+        }
 		if (verdict == XT_CONTINUE) {
 			/* Target might have changed stuff. */
 			ip = ip_hdr(skb);
