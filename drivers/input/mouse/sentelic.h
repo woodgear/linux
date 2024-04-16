@@ -119,10 +119,10 @@ struct fsp_data {
 	unsigned int	last_mt_fgr;	/* Last seen finger(multitouch) */
 };
 
-#ifdef CONFIG_MOUSE_PS2_SENTELIC
-extern int fsp_detect(struct psmouse *psmouse, bool set_properties);
-extern int fsp_init(struct psmouse *psmouse);
-#else
+// #ifdef CONFIG_MOUSE_PS2_SENTELIC
+// extern int fsp_detect(struct psmouse *psmouse, bool set_properties);
+// extern int fsp_init(struct psmouse *psmouse);
+// #else
 inline int fsp_detect(struct psmouse *psmouse, bool set_properties)
 {
 	return -ENOSYS;
@@ -131,7 +131,7 @@ inline int fsp_init(struct psmouse *psmouse)
 {
 	return -ENOSYS;
 }
-#endif
+// #endif
 
 #endif	/* __KERNEL__ */
 
