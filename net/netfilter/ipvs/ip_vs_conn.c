@@ -130,11 +130,11 @@ static unsigned int ip_vs_conn_hashkey_param(const struct ip_vs_conn_param *p,
 			ip_vs_conn_tab_mask;
 
 	if (likely(!inverse)) {
-//        pr_info( "[wg] hash with caddr %pI4 cport %d \n",&p->caddr->ip,ntohs(p->cport));
+        pr_info( "[wg] x hash with caddr %pI4 cport %d \n",&p->caddr->ip,ntohs(p->cport));
 		addr = p->caddr;
 		port = p->cport;
 	} else {
-//        pr_info( "[wg] hash with vaddr %pI4  vport %d \n",&p->vaddr->ip,ntohs(p->vport));
+        pr_info( "[wg] hash with vaddr %pI4  vport %d \n",&p->vaddr->ip,ntohs(p->vport));
 		addr = p->vaddr;
 		port = p->vport;
 	}
@@ -1494,7 +1494,7 @@ int __init ip_vs_conn_init(void)
 		return -ENOMEM;
 	}
 
-	pr_info("Connection hash table configured "
+	pr_info("[wg] Connection hash table configured "
 		"(size=%d, memory=%ldKbytes)\n",
 		ip_vs_conn_tab_size,
 		(long)(ip_vs_conn_tab_size*sizeof(struct list_head))/1024);

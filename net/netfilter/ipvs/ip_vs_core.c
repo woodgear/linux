@@ -446,7 +446,7 @@ ip_vs_schedule(struct ip_vs_service *svc, struct sk_buff *skb,
 	       struct ip_vs_proto_data *pd, int *ignored,
 	       struct ip_vs_iphdr *iph)
 {
-//	pr_info( "[wg] do real schedule | %s \n",skb_to_string(skb));
+	pr_info( "[wg] x do real schedule | %s \n",skb_to_string(skb));
 	struct ip_vs_protocol *pp = pd->pp;
 	struct ip_vs_conn *cp = NULL;
 	struct ip_vs_scheduler *sched;

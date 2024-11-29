@@ -8,6 +8,9 @@ apk add curl
 apk add openssh
 apk add dhcpcd
 apk add dhcpcd-openrc
+apk add rsyslog
+apk add rsyslog-openrc
+
 apk add vim iproute2 jq yq python3 bash iptables-legacy
 ### init
 ln -s agetty /etc/init.d/agetty.ttyS0
@@ -33,6 +36,7 @@ rc-update add e2e-tester default
 rc-update add devfs boot
 rc-update add procfs boot
 rc-update add sysfs boot
+rc-update add rsyslog boot
 
 # copy the newly configured system to the rootfs image:
 for d in bin etc lib root sbin usr; do tar c "/$d" | tar x -C /my-rootfs; done

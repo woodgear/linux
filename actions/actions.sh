@@ -50,9 +50,11 @@ function lx-build() (
 )
 
 function lx-mount-module() (
-  sudo mount rootfs.ext4 /tmp/my-rootfs
-  sudo mkdir /tmp/my-rootfs/lib/modules
+  sudo mount $LX_BASE/actions/rootfs.ext4 /tmp/my-rootfs
+  sudo mkdir -p /tmp/my-rootfs/lib/modules
   sudo cp -r /lib/modules/5.13.0wg+ /tmp/my-rootfs/lib/modules
+  md5sum /lib/modules/5.13.0wg+/kernel/net/netfilter/ipvs/ip_vs.ko
+  md5sum /tmp/my-rootfs/lib/modules/5.13.0wg+/kernel/net/netfilter/ipvs/ip_vs.ko
   sudo umount /tmp/my-rootfs || true
 )
 
@@ -111,11 +113,21 @@ function lx-cat-rf() {
   sudo umount /tmp/my-rootfs
 }
 
-function lx-test() {
+function lx-cp-rf() {
+  sudo mount $LX_BASE/actions/rootfs.ext4 /tmp/my-rootfs
+  sudo cp /tmp/my-rootfs/$1 $2
+  sudo chmod a+r $2
+  sudo umount /tmp/my-rootfs
+}
+
+function lx-test() (
   local start=$(date)
-  rm $LX_BASE/actions/tests/not-test || true
-  rm $LX_BASE/actions/tests/no-stop || true
-  lx-mount-test
+  (
+    rm $LX_BASE/actions/tests/not-test || true
+    rm $LX_BASE/actions/tests/no-stop || true
+    lx-mount-test
+  )
+  lx-mount-module
   qemu-system-x86_64 \
     -kernel $PWD/arch/x86_64/boot/bzImage \
     -boot c \
@@ -129,13 +141,31 @@ function lx-test() {
     -no-reboot
 
   echo "============="
-  lx-cat-rf /tests/test.log
+  mkdir -p ./.tests
+  lx-cp-rf /tests/test.log ./.tests/our.log
+  lx-cp-rf /var/log/kern.log ./.tests/kern.log
   local end=$(date)
+  echo "=======kern:start==========="
+  cat ./.tests/kern.log | grep -a '\[\wg\]'
+  echo "=======kern:over==========="
+  local cases=$(cat ./.tests/our.log | grep '@@@' | rg -o '@@@(.*)@@@' -r '$1')
+  echo "$cases"
   echo "start: $start"
   echo "end: $end"
+  if echo "$cases" | grep "success: false"; then
+    echo "test failed"
+    exit 1
+  fi
   return
-}
+)
 
+function lx-loop() {
+  make bzImage -j 10
+  make M=net/netfilter modules -j 10
+  sudo make modules_install
+  md5sum /lib/modules/5.13.0wg+/kernel/net/netfilter/ipvs/ip_vs.ko
+  lx-test
+}
 function lx-readme() {
   #有两种debug的方式
   # 1. 重新编译一个bzimage,然后重启qemu 虚拟机
@@ -145,6 +175,10 @@ function lx-readme() {
   # 2. lx-rf-build -> build 一个rootfs
   # 3. lx-mount-module -> 将内核模块挂在到rootfs中 # 模块里的改动在这里
   # 4. lx-boot -> 启动qemu虚拟机
+
+  make bzImage -j 10
+  make M=net/netfilter modules -j 10
+  lx-test
 
   return
 }
