@@ -18,13 +18,17 @@ echo -e "PasswordAuthentication yes" >>/etc/ssh/sshd_config
 echo -e "auto lo\niface lo inet loopback" >>/etc/network/interfaces
 
 mkdir -p /root/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJaz5oq/vU/+6wxAY4+qQsaFOhZCjt8EmAM5INh1EFfX q1875486458@gamil.com" >>/root/.ssh/authorized_keys
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJaz5oq/vU/+6wxAY4+qQsaFOhZCjt8EmAM5INh1EFfX wg@wg.com" >>/root/.ssh/authorized_keys
 
 ## auto start
 rc-update add agetty.ttyS0 default
 rc-update add networking default
 rc-update add sshd default
 rc-update add dhcpcd default
+cp /e2e-tester.sh /etc/init.d/e2e-tester
+chmod a+x /etc/init.d/e2e-tester
+rc-update add e2e-tester default
+
 # Make sure special file systems are mounted on boot:
 rc-update add devfs boot
 rc-update add procfs boot
